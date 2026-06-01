@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "lastUpdate": "2026-06-01",
+  "dailyGrowth": {
+    "min": 15,
+    "max": 217
+  },
+  "initialVotes": {
+    "min": 18,
+    "max": 189
+  },
+  "votes": {}
+}
