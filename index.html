@@ -248,9 +248,17 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
   <div class="terminal" style="max-width:1250px;width:100%">
     <div class="terminal-header">
       <div class="terminal-dot r"></div><div class="terminal-dot y"></div><div class="terminal-dot g"></div>
-      <span class="terminal-title">starry_miu@nft-terminal:~$ vote --browse --page <span id="votePageLabel">1</span>/57</span>
+      <span class="terminal-title">starry_miu@nft-terminal:~$ vote --browse --page <span id="votePageLabel">1</span>/<span id="voteTotalPages"></span>57</span></span>
     </div>
-    <div class="terminal-body" id="voteGrid"></div>
+    <div class="terminal-body">
+      <!-- Fixed command line -->
+      <div class="cmd-line vote-cmd-line">
+        <span class="cmd-prompt">starry_miu@nft-terminal:~$</span>
+        <span style="color:var(--text-primary)"> vote --browse --page <span id="voteCmdPage">1</span></span>
+        <span class="typing-cursor"></span>
+      </div>
+      <div id="voteGrid"></div>
+    </div>
     <div class="pagination" id="votePagination"></div>
   </div>
 </div>
@@ -270,57 +278,116 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
 /* ========== DATA ========== */
 const TOTAL_NFT = 1132;
 const PER_PAGE = 20;
-const TOTAL_PAGES = Math.ceil(TOTAL_NFT / PER_PAGE);
 const CONTRACT_ADDRESS = '0x88d1e3b2913f4c44436d2b21b154c90157b5d721';
-const IPFS_IMAGE_BASE = 'https://w3s.link/ipfs/bafybeidcmp6jbjy2bqrj2xmemxme6bhmixtkkuwfq3gmgh34h7syclclqa';
-const IPFS_GATEWAYS = [
-  'https://w3s.link/ipfs/bafybeidcmp6jbjy2bqrj2xmemxme6bhmixtkkuwfq3gmgh34h7syclclqa',
-  'https://dweb.link/ipfs/bafybeidcmp6jbjy2bqrj2xmemxme6bhmixtkkuwfq3gmgh34h7syclclqa',
-  'https://ipfs.io/ipfs/bafybeidcmp6jbjy2bqrj2xmemxme6bhmixtkkuwfq3gmgh34h7syclclqa'
+const IPFS_CID = 'bafybeidcmp6jbjy2bqrj2xmemxme6bhmixtkkuwfq3gmgh34h7syclclqa';
+
+// IPFS网关列表 - 主网关和备用网关
+const gateways = [
+  'https://dweb.link',           // 主
+  'https://nftstorage.link',     // 备1
+  'https://cloudflare-ipfs.com', // 备2
 ];
+
+// 已销毁的NFT编号列表 - 黑洞销毁
+const DESTROYED_NFTS = new Set([405, 439, 84, 561, 547, 1042, 688, 276, 930, 253, 764, 395, 582, 845, 603, 128, 608, 632, 529, 200, 446, 410, 380, 233, 986, 398, 32, 420, 961, 52, 66, 739, 654, 1041, 567, 46]);
+
+// 获取NFT图片URL
+function getNFTImageUrl(id) {
+  return `${gateways[0]}/ipfs/${IPFS_CID}/${id}.webp`;
+}
+
+// 检查NFT是否已销毁
+function isDestroyed(id) {
+  return DESTROYED_NFTS.has(id);
+}
+
+// 计算实际页数（排除销毁的NFT）
+function getAvailableNFTs() {
+  const available = [];
+  for (let i = 1; i <= TOTAL_NFT; i++) {
+    if (!isDestroyed(i)) {
+      available.push(i);
+    }
+  }
+  return available;
+}
+
+const availableNFTs = getAvailableNFTs();
+const TOTAL_PAGES = Math.ceil(availableNFTs.length / PER_PAGE);
 
 const imageCache = {};
 const nftDataCache = {};
 
-async function fetchNFTData(id) {
+// 创建NFT图片元素（带懒加载和网关切换）
+function createNFTImage(id) {
+  const img = document.createElement('img');
+  img.className = 'nft-img';
+  img.src = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%231a1a2e' width='100' height='100'/><text fill='%234a4a6a' x='50' y='55' text-anchor='middle'>${id}</text></svg>`;
+  img.alt = `StarryMiu #${id}`;
+  img.loading = 'lazy';  // 关键！懒加载
+  img.width = 400;      // 图片尺寸限制
+  img.height = 400;     // 图片尺寸限制
+  
+  // 设置实际图片URL并添加网关切换机制
+  img.setAttribute('data-src', getNFTImageUrl(id));
+  
+  // 懒加载观察者
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        loadNFTImage(img, id);
+        observer.unobserve(img);
+      }
+    });
+  }, { rootMargin: '100px' });
+  
+  observer.observe(img);
+  
+  return img;
+}
+
+// 加载NFT图片（带网关切换）
+function loadNFTImage(img, id) {
+  const currentGatewayIndex = 0;
+  const src = img.getAttribute('data-src');
+  
+  img.src = src;
+  
+  img.onerror = function() {
+    // 切换到下一个网关
+    const currentUrl = this.src;
+    for (let i = 0; i < gateways.length - 1; i++) {
+      if (currentUrl.startsWith(gateways[i])) {
+        this.src = currentUrl.replace(gateways[i], gateways[i + 1]);
+        // 设置新的onerror继续切换
+        this.onerror = function() {
+          for (let j = i + 1; j < gateways.length - 1; j++) {
+            if (this.src.startsWith(gateways[j])) {
+              this.src = this.src.replace(gateways[j], gateways[j + 1]);
+              this.onerror = null; // 最后一个网关失败后停止
+              break;
+            }
+          }
+        };
+        break;
+      }
+    }
+  };
+}
+
+// 获取NFT数据（简化版，不调用OpenSea API）
+function getNFTData(id) {
   if (nftDataCache[id]) {
     return nftDataCache[id];
   }
   
-  try {
-    const response = await fetch(`https://api.opensea.io/api/v2/chain/base/contract/${CONTRACT_ADDRESS}/nfts/${id}`);
-    const data = await response.json();
-    if (data.nft) {
-      const result = {
-        id: parseInt(data.nft.identifier) || id,
-        image_url: data.nft.metadata?.image_url || `${IPFS_IMAGE_BASE}/${id}.webp`,
-        name: data.nft.metadata?.name || `StarryMiu #${id}`
-      };
-      nftDataCache[id] = result;
-      imageCache[id] = result.image_url;
-      return result;
-    }
-  } catch (error) {
-    console.error(`Failed to fetch NFT data for #${id}:`, error);
-  }
-  
   const result = {
     id: id,
-    image_url: `${IPFS_IMAGE_BASE}/${id}.webp`,
+    image_url: getNFTImageUrl(id),
     name: `StarryMiu #${id}`
   };
   nftDataCache[id] = result;
-  imageCache[id] = result.image_url;
   return result;
-}
-
-async function fetchNFTImageURL(id) {
-  const data = await fetchNFTData(id);
-  return data.image_url;
-}
-
-function nftImageURL(id) {
-  return `${IPFS_IMAGE_BASE}/${id}.webp`;
 }
 
 // Generate deterministic NFT colors for placeholder images
@@ -882,7 +949,7 @@ function processCommand(cmd, callback) {
   }
 }
 
-async function showNFTStory(id, callback) {
+function showNFTStory(id, callback) {
   const char = getCharacterById(id);
   if (char) {
     addOutput('');
@@ -903,19 +970,6 @@ async function showNFTStory(id, callback) {
     return;
   }
   
-  addOutput(` <span class="dim">获取持有者信息中...</span>`);
-  try {
-    const response = await fetch(`https://api.opensea.io/api/v2/chain/base/contract/0x88d1e3b2913f4c44436d2b21b154c90157b5d721/nfts/${id}`);
-    const data = await response.json();
-    if (data.nft && data.nft.owner) {
-      const owner = data.nft.owner.address;
-      addOutput(` <span class="dim">持有者: <a href="https://opensea.io/${owner}" target="_blank" style="color:var(--accent-cyan)">${owner.substring(0, 8)}...${owner.substring(38)}</a></span>`);
-    } else {
-      addOutput(` <span class="dim">持有者: 暂无数据</span>`);
-    }
-  } catch (error) {
-    addOutput(` <span class="dim">持有者: 获取失败，请访问 <a href="https://opensea.io/assets/base/0x88d1e3b2913f4c44436d2b21b154c90157b5d721/${id}" target="_blank" style="color:var(--accent-cyan)">OpenSea</a> 查看</span>`);
-  }
   addOutput('');
   if (callback) callback();
 }
@@ -1343,26 +1397,33 @@ function getTop30() {
     .map(([id, v]) => ({ id: parseInt(id), votes: v }));
 }
 
-async function renderTopVotes() {
+function renderTopVotes() {
   const container = document.getElementById('topVoteGrid');
+  if (!container) return;
+  
   container.innerHTML = '<div class="cmd-output dim"> > Fetching top 10 voted NFTs...</div><div class="cmd-output"> > Rendering leaderboard...\n</div>';
   const grid = document.createElement('div');
   grid.className = 'nft-grid-top';
-  const top30 = getTop30();
   
-  for (const item of top30) {
+  // 获取投票最高的NFT，排除已销毁的
+  const topVoted = Object.entries(votes)
+    .filter(([id]) => !isDestroyed(parseInt(id)))
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10)
+    .map(([id, v]) => ({ id: parseInt(id), votes: v }));
+  
+  for (const item of topVoted) {
     const wrap = document.createElement('div');
     const card = document.createElement('div');
     card.className = 'nft-card';
-    card.innerHTML = `<img class="nft-img" src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%231a1a2e' width='100' height='100'/><text fill='%234a4a6a' x='50' y='55' text-anchor='middle'>Loading...</text></svg>" alt="StarryMiu #${item.id}" loading="lazy">`;
     
-    const img = card.querySelector('img');
-    const nftData = await fetchNFTData(item.id);
-    img.src = nftData.image_url;
+    // 使用新的createNFTImage函数创建图片（带懒加载和网关切换）
+    const img = createNFTImage(item.id);
+    card.appendChild(img);
     
     const info = document.createElement('div');
     info.className = 'nft-id';
-    info.innerHTML = `#${String(nftData.id).padStart(4,'0')}`;
+    info.innerHTML = `#${String(item.id).padStart(4,'0')}`;
     const vc = document.createElement('div');
     vc.className = 'vote-count';
     vc.textContent = `${item.votes} 票`;
@@ -1374,47 +1435,52 @@ async function renderTopVotes() {
   container.appendChild(grid);
 }
 
-async function renderVotePage(page) {
+function renderVotePage(page) {
   currentVotePage = page;
   const container = document.getElementById('voteGrid');
   container.innerHTML = '';
-  const start = (page - 1) * PER_PAGE + 1;
-  const end = Math.min(page * PER_PAGE, TOTAL_NFT);
+  
+  // 从availableNFTs数组中获取当前页的NFT（已排除销毁的）
+  const startIdx = (page - 1) * PER_PAGE;
+  const endIdx = Math.min(startIdx + PER_PAGE, availableNFTs.length);
+  const pageNFTs = availableNFTs.slice(startIdx, endIdx);
+  
+  const firstId = pageNFTs.length > 0 ? pageNFTs[0] : '-';
+  const lastId = pageNFTs.length > 0 ? pageNFTs[pageNFTs.length - 1] : '-';
 
   const info = document.createElement('div');
   info.className = 'cmd-output dim';
-  info.textContent = ` > Displaying NFTs #${start} - #${end} (Page ${page}/${TOTAL_PAGES})`;
+  info.textContent = ` > Displaying NFTs #${firstId} - #${lastId} (Page ${page}/${TOTAL_PAGES})`;
   container.appendChild(info);
 
   const grid = document.createElement('div');
   grid.className = 'nft-grid';
   
-  for (let i = start; i <= end; i++) {
+  for (const nftId of pageNFTs) {
     const wrap = document.createElement('div');
     const card = document.createElement('div');
     card.className = 'nft-card';
-    card.innerHTML = `<img class="nft-img" src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%231a1a2e' width='100' height='100'/><text fill='%234a4a6a' x='50' y='55' text-anchor='middle'>${i}</text></svg>" alt="StarryMiu #${i}" loading="lazy">`;
     
-    const img = card.querySelector('img');
-    const nftData = await fetchNFTData(i);
-    img.src = nftData.image_url;
+    // 使用新的createNFTImage函数创建图片（带懒加载和网关切换）
+    const img = createNFTImage(nftId);
+    card.appendChild(img);
     
     const idLabel = document.createElement('div');
     idLabel.className = 'nft-id';
-    idLabel.textContent = `#${String(nftData.id).padStart(4,'0')}`;
+    idLabel.textContent = `#${String(nftId).padStart(4,'0')}`;
     const btn = document.createElement('button');
     btn.className = 'vote-btn';
-    btn.textContent = `投票 (${votes[i]})`;
+    btn.textContent = `投票 (${votes[nftId] || 0})`;
     btn.addEventListener('click', async () => {
-      const success = await addVote(i);
+      const success = await addVote(nftId);
       if (success) {
-        btn.textContent = `投票 (${votes[i]})`;
+        btn.textContent = `投票 (${votes[nftId]})`;
         btn.style.borderColor = 'var(--accent-magenta)';
         btn.style.color = 'var(--accent-magenta)';
         setTimeout(() => { btn.style.borderColor = ''; btn.style.color = ''; }, 600);
       } else {
-        btn.style.borderColor = 'var(--accent-red)';
-        btn.style.color = 'var(--accent-red)';
+        btn.style.borderColor = '#ff3333';
+        btn.style.color = '#ff3333';
         setTimeout(() => { btn.style.borderColor = ''; btn.style.color = ''; }, 600);
       }
     });
@@ -1425,7 +1491,10 @@ async function renderVotePage(page) {
   }
   container.appendChild(grid);
 
+  // 更新固定命令行中的页码
   document.getElementById('votePageLabel').textContent = page;
+  document.getElementById('voteTotalPages').textContent = TOTAL_PAGES;
+  document.getElementById('voteCmdPage').textContent = page;
   renderPagination();
 }
 
@@ -1482,15 +1551,9 @@ function addPageBtn(container, p) {
 function initAbout() {
   const container = document.getElementById('aboutContent');
   container.innerHTML = `
-<div class="ascii-art">
-   /\\_/\\
-  ( o.o )
-   > ^ <   StarryMiu NFT
-  /|   |\\
- (_|   |_)
-</div>
+<div class="ascii-art">   /&#92;_/&#92;<br/>  ( o.o )<br/>   &gt; ^ &lt;     StarryMiu NFT<br/>  /|   |&#92;<br/>  (_|   |_)</div>
 <div class="cmd-output"><span class="highlight">> cat creator_info.txt</span></div>
-<div class="about-line">  <span class="label">项目名称 :</span> <span class="value">StarryMiu NFT Collection</span></div>
+<div class="about-line">  <span class="label">项目名称 :</span> <span class="value">StarryMiu NFT</span></div>
 <div class="about-line">  <span class="label">创作者   :</span> <a href="https://x.com/_StarryMiu" target="_blank" rel="noopener" style="color:var(--accent-magenta);text-decoration:none">StarryMiu</a></div>
 <div class="about-line">  <span class="label">X (Twitter):</span> <a href="https://x.com/_StarryMiu" target="_blank" rel="noopener" style="color:var(--accent-magenta);text-decoration:none">@_StarryMiu</a></div>
 <div class="about-line">  <span class="label">总数量   :</span> <span class="value">${TOTAL_NFT} Unique NFTs</span></div>
@@ -1501,12 +1564,12 @@ function initAbout() {
 <div class="about-line">  <span class="label">IPFS     :</span> <span class="value" style="font-size:.7rem">bafybeidcmp6jbjy2bqrj2xmemxme6bhmixtkkuwfq3gmgh34h7syclclqa</span></div>
 <div class="about-line">  <span class="label">版本     :</span> <span class="value">Terminal v1.0</span></div>
 <div class="cmd-output"><span class="highlight">> cat mission.txt</span></div>
-<div class="cmd-output" style="line-height:1.9;max-width:700px">  StarryMiu 是我独自创建和打造的私人 NFT 收藏系列。在购入了五十多个不同的 NFT 项目后，我最终决定：我要创建自己的作品，铸造自己的 NFT，并真正拥有它。没有白名单，没有公开发售，其他人无法铸造。这个收藏系列只属于我。</div>
+<div class="cmd-output" style="line-height:1.9;max-width:700px">  StarryMiu 是我独自创建并构建的一套私人 NFT 藏品，无白名单。无公开发售。其他任何人都无法铸造，这套藏品只属于我一个人。</div>
 <div class="cmd-output"><span class="highlight">> cat links.txt</span></div>
-<div class="about-line">  <span class="label">[01]</span> <a href="https://t.me/StarryMiuCuteKitten" target="_blank" rel="noopener" style="color:var(--accent-cyan);text-decoration:none">Telegram 频道</a></div>
-<div class="about-line">  <span class="label">[02]</span> <a href="https://t.me/StarryMiu/1" target="_blank" rel="noopener" style="color:var(--accent-cyan);text-decoration:none">Telegram 群组</a></div>
-<div class="about-line">  <span class="label">[03]</span> <a href="https://cutekitten.hair/" target="_blank" rel="noopener" style="color:var(--accent-cyan);text-decoration:none">作者其它作品</a></div>
-<div class="about-line">  <span class="label">[04]</span> <a href="https://opensea.io/assets/base/0x88d1e3b2913f4c44436d2b21b154c90157b5d721/1" target="_blank" rel="noopener" style="color:var(--accent-cyan);text-decoration:none">OpenSea 查看</a></div>
+<div class="about-line">  <span class="label">[01]</span> Telegram 频道    <a href="https://t.me/StarryMiuCuteKitten" target="_blank" rel="noopener" style="color:var(--accent-cyan);text-decoration:none">Cute Kitten</a></div>
+<div class="about-line">  <span class="label">[02]</span> Telegram 群组    <a href="https://t.me/StarryMiu/1" target="_blank" rel="noopener" style="color:var(--accent-cyan);text-decoration:none">Starry Kitten Gallery</a></div>
+<div class="about-line">  <span class="label">[03]</span> 作者其它作品    <a href="https://cutekitten.hair/" target="_blank" rel="noopener" style="color:var(--accent-cyan);text-decoration:none">Cute Kitten</a></div>
+<div class="about-line">  <span class="label">[04]</span> OpenSea 查看    <a href="https://opensea.io/collection/starrymiu" target="_blank" rel="noopener" style="color:var(--accent-cyan);text-decoration:none">StarryMiu NFT</a></div>
 <div class="cmd-output dim">  [EOF] - starry_miu@nft-terminal:~$ <span class="typing-cursor"></span></div>
   `;
 }
