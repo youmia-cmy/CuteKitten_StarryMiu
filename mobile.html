@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>StarryMiu NFT Terminal - Mobile</title>
+<!-- 设备检测和重定向 -->
+<script>
+(function() {
+  // 检测是否为移动设备
+  function isMobile() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+           (window.innerWidth <= 768 && 'ontouchstart' in window);
+  }
+
+  // 如果不是移动设备，跳转到PC端页面
+  if (!isMobile() && window.location.href.includes('mobile.html')) {
+    window.location.href = 'index.html';
+  }
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+/* === RESET & BASE === */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0f;--term-bg:#0d0d14;--text-primary:#c0ffc0;--text-dim:#4a7a4a;
+  --accent-cyan:#00f0ff;--accent-magenta:#ff00e5;--accent-purple:#a855f7;
+  --accent-green:#39ff14;--grad-1:linear-gradient(135deg,#00f0ff,#a855f7,#ff00e5);
+  --grad-2:linear-gradient(90deg,#00f0ff,#39ff14);--grad-3:linear-gradient(45deg,#ff00e5,#ff6b35,#ffd700);
+  --font-mono:'JetBrains Mono','Share Tech Mono',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text-primary);font-family:var(--font-mono);overflow-x:hidden;min-height:100vh}
+
+/* === SCANLINE OVERLAY === */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.15) 2px,rgba(0,0,0,0.15) 4px);
+  animation:scanFlicker 8s infinite}
+@keyframes scanFlicker{0%,100%{opacity:.4}50%{opacity:.6}}
+
+/* === CRT GLOW === */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
+  background:radial-gradient(ellipse at center,transparent 50%,rgba(0,0,0,0.6) 100%)}
+
+/* === MOBILE NAVIGATION === */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;
+  background:rgba(10,10,15,0.95);backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(0,240,255,0.15);padding:0 1rem;height:60px;
+  display:flex;align-items:center;justify-content:space-between}
+.nav-logo{font-size:1rem;font-weight:700;letter-spacing:1px;
+  background:var(--grad-1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-logo span{font-weight:300;opacity:.6;-webkit-text-fill-color:var(--text-dim);font-size:.75rem;display:block;margin-top:2px}
+
+/* Mobile Menu Button */
+.menu-btn{background:none;border:none;color:var(--accent-cyan);font-size:1.5rem;
+  cursor:pointer;padding:.5rem;z-index:1001}
+.menu-btn:active{transform:scale(0.95)}
+
+/* Mobile Menu Overlay */
+.menu-overlay{position:fixed;inset:0;background:rgba(10,10,15,0.98);
+  z-index:999;display:none;flex-direction:column;align-items:center;
+  justify-content:center;gap:1.5rem}
+.menu-overlay.active{display:flex}
+.menu-link{padding:1.2rem 2rem;cursor:pointer;font-size:1.2rem;letter-spacing:2px;
+  color:var(--text-dim);border:1px solid var(--text-dim);background:none;
+  font-family:var(--font-mono);transition:all .3s;border-radius:8px;
+  min-width:200px;text-align:center}
+.menu-link:active,.menu-link.active{color:var(--accent-cyan);border-color:var(--accent-cyan)}
+.menu-close{position:absolute;top:1.5rem;right:1.5rem;background:none;border:none;
+  color:var(--accent-cyan);font-size:2rem;cursor:pointer}
+
+/* === PAGES === */
+.page{display:none;padding-top:80px;min-height:100vh;padding-bottom:2rem;
+  padding-left:1rem;padding-right:1rem}
+.page.active{display:flex;flex-direction:column;animation:fadeIn .5s ease}
+.page.active.page-center{justify-content:flex-start;align-items:center}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* === TERMINAL WINDOW === */
+.terminal{margin:1rem 0;max-width:100%;border-radius:12px;overflow:visible;position:relative;
+  background:var(--term-bg);border:2px solid transparent;
+  background-clip:padding-box;
+  animation:termGlow 4s ease-in-out infinite alternate}
+.terminal>*{position:relative;z-index:2}
+.terminal>.terminal-body,.terminal>.terminal-header,.terminal>.exhibit-desc,.terminal>.pagination{
+  background:var(--term-bg)}
+@keyframes termGlow{
+  0%{box-shadow:0 0 15px rgba(0,240,255,0.1),0 0 30px rgba(168,85,247,0.05)}
+  33%{box-shadow:0 0 15px rgba(168,85,247,0.15),0 0 30px rgba(255,0,229,0.05)}
+  66%{box-shadow:0 0 15px rgba(255,0,229,0.1),0 0 30px rgba(57,255,20,0.05)}
+  100%{box-shadow:0 0 15px rgba(57,255,20,0.1),0 0 30px rgba(0,240,255,0.05)}
+}
+.terminal::before{content:'';position:absolute;inset:-2px;border-radius:14px;padding:2px;
+  background:linear-gradient(var(--border-angle,0deg),#00f0ff,#a855f7,#ff00e5,#39ff14,#00f0ff);
+  background-size:300% 300%;animation:borderRotate 4s linear infinite;
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;z-index:1}
+@keyframes borderRotate{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+.terminal-header{background:rgba(0,0,0,0.5);padding:.8rem 1rem;display:flex;align-items:center;gap:.5rem;
+  border-bottom:1px solid rgba(0,240,255,0.1);position:relative;overflow:hidden}
+.terminal-header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,#00f0ff,#a855f7,#ff00e5,#39ff14,#00f0ff);
+  background-size:300% 100%;animation:headerGlow 3s linear infinite}
+@keyframes headerGlow{0%{background-position:0% 0}100%{background-position:300% 0}}
+.terminal-dot{width:12px;height:12px;border-radius:50%}
+.terminal-dot.r{background:#ff5f56}.terminal-dot.y{background:#ffbd2e}.terminal-dot.g{background:#27c93f}
+.terminal-title{margin-left:.8rem;font-size:.85rem;color:var(--text-dim);letter-spacing:1px}
+.terminal-body{padding:1rem;min-height:200px;position:relative;overflow-x:auto}
+
+/* === NFT GRID - MOBILE OPTIMIZED === */
+.nft-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:.8rem 0}
+.nft-grid>div{display:flex;flex-direction:column;align-items:center;min-width:0}
+.nft-grid .nft-card{width:100%;padding-top:100%;position:relative;overflow:hidden;border-radius:6px}
+.nft-grid .nft-card .nft-img{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover}
+.nft-card{position:relative;border-radius:6px;overflow:hidden;cursor:pointer;
+  transition:transform .2s,box-shadow .2s;width:100%}
+.nft-card::before{content:'';position:absolute;inset:-2px;border-radius:8px;padding:2px;
+  background:linear-gradient(var(--border-angle,0deg),#00f0ff,#a855f7,#ff00e5,#39ff14,#00f0ff);
+  background-size:300% 300%;animation:borderRotate 3s linear infinite;
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;z-index:2;opacity:.7;transition:opacity .3s}
+.nft-card:active::before{opacity:1}
+.nft-card:active{transform:scale(0.98)}
+.nft-img{width:100%;height:100%;object-fit:cover;border-radius:6px;display:block}
+.nft-id{text-align:center;font-size:.75rem;color:var(--accent-cyan);padding:6px 0;
+  letter-spacing:1px;font-weight:500}
+
+/* === HOME PAGE COMMAND LINE === */
+.cmd-line{display:flex;align-items:center;gap:.5rem;padding:.5rem 0}
+.cmd-prompt{color:var(--accent-green);white-space:nowrap;font-weight:700;font-size:.9rem}
+.cmd-input{flex:1;background:none;border:none;color:var(--text-primary);font-family:var(--font-mono);
+  font-size:1rem;outline:none;caret-color:var(--accent-cyan);min-height:44px}
+.cmd-output{padding:.4rem 0;line-height:1.8;color:var(--text-primary);white-space:pre-wrap;font-size:.9rem}
+.cmd-output.dim{color:var(--text-dim)}
+.cmd-output .highlight{color:var(--accent-cyan)}
+.cmd-output .warn{color:#ffd700}
+.cmd-output .pink{color:var(--accent-magenta)}
+.typing-cursor{display:inline-block;width:8px;height:18px;background:var(--accent-green);
+  animation:blink 1s step-end infinite;vertical-align:text-bottom;margin-left:2px}
+@keyframes blink{50%{opacity:0}}
+
+/* === VOTE SECTION - MOBILE === */
+.vote-btn{background:none;border:2px solid var(--accent-cyan);color:var(--accent-cyan);
+  font-family:var(--font-mono);font-size:.75rem;padding:8px 12px;border-radius:6px;
+  cursor:pointer;transition:all .2s;letter-spacing:.5px;min-height:44px;width:100%}
+.vote-btn:active{background:var(--accent-cyan);color:var(--bg);transform:scale(0.98)}
+.vote-count{font-size:.75rem;color:var(--accent-magenta);text-align:center;margin-top:4px}
+
+/* === PAGINATION - MOBILE === */
+.pagination{display:flex;justify-content:center;align-items:center;gap:.8rem;padding:1.2rem 0;
+  font-size:1rem;user-select:none;flex-wrap:wrap}
+.page-btn{background:none;border:none;color:var(--text-dim);
+  font-family:var(--font-mono);font-size:1rem;padding:12px 16px;
+  cursor:pointer;transition:all .2s;min-height:44px;min-width:44px}
+.page-btn:active{color:#fff;transform:scale(0.95)}
+.page-btn.active{color:#ffb0c4;font-weight:700}
+.page-btn.nav-arrow{color:#ff3333;font-weight:700;border:1px solid rgba(255,51,51,0.3);
+  border-radius:6px}
+.page-btn.nav-arrow:active{color:#ff6666;text-shadow:0 0 6px rgba(255,51,51,0.4)}
+.page-btn.nav-arrow:disabled{color:#4a2020;cursor:default;text-shadow:none;opacity:.5}
+.page-info{color:var(--text-dim);font-size:.9rem;padding:0 .5rem}
+
+/* === ABOUT === */
+.about-line{padding:.4rem 0;line-height:1.8;font-size:.9rem}
+.about-line .label{color:var(--text-dim)}
+.about-line .value{color:var(--accent-cyan)}
+.ascii-art{color:var(--accent-green);font-size:.7rem;line-height:1.3;padding:1rem 0;opacity:.8}
+
+/* === STORY TERMINAL === */
+.story-chapter{padding:1rem 0;border-bottom:1px solid rgba(0,240,255,0.06)}
+.story-chapter:last-child{border-bottom:none}
+.story-chapter-title{color:var(--accent-cyan);font-size:.9rem;font-weight:700;letter-spacing:1px;
+  padding:.4rem 0;margin-bottom:.5rem}
+.story-chapter-title .ch-num{color:var(--accent-magenta);margin-right:.5rem}
+.story-divider{color:var(--text-dim);font-size:.75rem;opacity:.5;padding:.3rem 0;user-select:none}
+.story-text{color:var(--text-primary);font-size:.85rem;line-height:2;padding:.3rem 0;white-space:pre-wrap}
+.story-text .em{color:var(--accent-cyan)}
+.story-text .warn{color:#ffd700}
+.story-text .pink{color:var(--accent-magenta)}
+.story-nav{display:flex;gap:.8rem;padding:1rem 0;flex-wrap:wrap}
+.story-nav-btn{background:none;border:2px solid var(--text-dim);color:var(--text-dim);
+  font-family:var(--font-mono);font-size:.8rem;padding:.5rem 1rem;border-radius:6px;
+  cursor:pointer;transition:all .2s;letter-spacing:.5px;min-height:44px}
+.story-nav-btn:active,.story-nav-btn.active{border-color:var(--accent-cyan);color:var(--accent-cyan);
+  background:rgba(0,240,255,0.05)}
+.story-cmd{color:var(--text-dim);font-size:.75rem;padding:.4rem 0}
+.story-cmd .highlight{color:var(--accent-cyan)}
+
+/* === EXHIBITION DESC === */
+.exhibit-desc{padding:1.2rem;color:var(--text-dim);line-height:1.8;font-size:.9rem;
+  border-top:1px solid rgba(0,240,255,0.08)}
+.exhibit-desc .em{color:var(--accent-cyan)}
+
+/* === SCROLLBAR === */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:rgba(0,240,255,0.2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(0,240,255,0.4)}
+
+/* === Top 10 NFT grid === */
+.nft-grid-top{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:.5rem 0}
+.nft-grid-top>div{display:flex;flex-direction:column;align-items:center;min-width:0}
+.nft-grid-top .nft-card{width:100%;padding-top:100%;position:relative;overflow:hidden;border-radius:6px}
+.nft-grid-top .nft-card .nft-img{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover}
+
+/* === Mobile-specific adjustments === */
+@media(max-width:480px){
+  .nft-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .nft-grid-top{grid-template-columns:repeat(2,1fr)}
+  .terminal-body{padding:.8rem}
+  .cmd-output{font-size:.85rem}
+  .nav-logo{font-size:.9rem}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav class="nav">
+  <div class="nav-logo">STARRY_MIU <span>NFT_MOBILE</span></div>
+  <button class="menu-btn" id="menuBtn">☰</button>
+</nav>
+
+<!-- MOBILE MENU OVERLAY -->
+<div class="menu-overlay" id="menuOverlay">
+  <button class="menu-close" id="menuClose">×</button>
+  <button class="menu-link active" data-page="home">首页</button>
+  <button class="menu-link" data-page="exhibition">起源</button>
+  <button class="menu-link" data-page="vote">投票</button>
+  <button class="menu-link" data-page="about">关于</button>
+</div>
+
+<!-- HOME PAGE -->
+<div id="home" class="page active page-center">
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dot r"></div><div class="terminal-dot y"></div><div class="terminal-dot g"></div>
+      <span class="terminal-title">starry_miu@nft-terminal:~$ story_mode</span>
+    </div>
+    <div class="terminal-body" id="homeTerminal">
+      <!-- filled by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- EXHIBITION PAGE -->
+<div id="exhibition" class="page page-center">
+  <div class="terminal" style="min-height:500px">
+    <div class="terminal-header">
+      <div class="terminal-dot r"></div><div class="terminal-dot y"></div><div class="terminal-dot g"></div>
+      <span class="terminal-title">starry_miu@nft-terminal:~$ cat story.txt</span>
+    </div>
+    <div class="terminal-body" id="storyTerminal">
+      <!-- story chapters rendered by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- VOTE PAGE -->
+<div id="vote" class="page page-center">
+  <div class="terminal" style="width:100%">
+    <div class="terminal-header">
+      <div class="terminal-dot r"></div><div class="terminal-dot y"></div><div class="terminal-dot g"></div>
+      <span class="terminal-title">starry_miu@nft-terminal:~$ vote --browse</span>
+    </div>
+    <div class="terminal-body">
+      <div class="cmd-line vote-cmd-line">
+        <span class="cmd-prompt">starry_miu@nft-terminal:~$</span>
+        <span style="color:var(--text-primary)"> vote --page <span id="voteCmdPage">1</span></span>
+        <span class="typing-cursor"></span>
+      </div>
+      <div id="voteGrid"></div>
+    </div>
+    <div class="pagination" id="votePagination"></div>
+  </div>
+</div>
+
+<!-- ABOUT PAGE -->
+<div id="about" class="page">
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dot r"></div><div class="terminal-dot y"></div><div class="terminal-dot g"></div>
+      <span class="terminal-title">starry_miu@nft-terminal:~$ cat about.txt</span>
+    </div>
+    <div class="terminal-body" id="aboutContent"></div>
+  </div>
+</div>
+
+<script>
+/* ========== DATA ========== */
+const TOTAL_NFT = 1132;
+const PER_PAGE = 12; // Reduced for mobile
+const CONTRACT_ADDRESS = '0x88d1e3b2913f4c44436d2b21b154c90157b5d721';
+const IPFS_CID = 'bafybeidcmp6jbjy2bqrj2xmemxme6bhmixtkkuwfq3gmgh34h7syclclqa';
+
+const gateways = [
+  'https://dweb.link',
+  'https://nftstorage.link',
+  'https://cloudflare-ipfs.com',
+];
+
+const DESTROYED_NFTS = new Set([405, 439, 84, 561, 547, 1042, 688, 276, 930, 253, 764, 395, 582, 845, 603, 128, 608, 632, 529, 200, 446, 410, 380, 233, 986, 398, 32, 420, 961, 52, 66, 739, 654, 1041, 567, 46]);
+
+function getNFTImageUrl(id) {
+  return `${gateways[0]}/ipfs/${IPFS_CID}/${id}.webp`;
+}
+
+function isDestroyed(id) {
+  return DESTROYED_NFTS.has(id);
+}
+
+function getAvailableNFTs() {
+  const available = [];
+  for (let i = 1; i <= TOTAL_NFT; i++) {
+    if (!isDestroyed(i)) {
+      available.push(i);
+    }
+  }
+  return available;
+}
+
+const availableNFTs = getAvailableNFTs();
+const TOTAL_PAGES = Math.ceil(availableNFTs.length / PER_PAGE);
+
+const imageCache = {};
+const nftDataCache = {};
+
+function createNFTImage(id) {
+  const img = document.createElement('img');
+  img.className = 'nft-img';
+  img.src = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%231a1a2e' width='100' height='100'/><text fill='%234a4a6a' x='50' y='55' text-anchor='middle'>${id}</text></svg>`;
+  img.alt = `StarryMiu #${id}`;
+  img.loading = 'lazy';
+  img.width = 400;
+  img.height = 400;
+  
+  img.setAttribute('data-src', getNFTImageUrl(id));
+  
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        loadNFTImage(img, id);
+        observer.unobserve(img);
+      }
+    });
+  }, { rootMargin: '100px' });
+  
+  observer.observe(img);
+  
+  return img;
+}
+
+function loadNFTImage(img, id) {
+  const currentGatewayIndex = 0;
+  const src = img.getAttribute('data-src');
+  
+  img.src = src;
+  
+  img.onerror = function() {
+    const currentUrl = this.src;
+    for (let i = 0; i < gateways.length - 1; i++) {
+      if (currentUrl.startsWith(gateways[i])) {
+        this.src = currentUrl.replace(gateways[i], gateways[i + 1]);
+        this.onerror = function() {
+          for (let j = i + 1; j < gateways.length - 1; j++) {
+            if (this.src.startsWith(gateways[j])) {
+              this.src = this.src.replace(gateways[j], gateways[j + 1]);
+              this.onerror = null;
+              break;
+            }
+          }
+        };
+        break;
+      }
+    }
+  };
+}
+
+function getNFTData(id) {
+  if (nftDataCache[id]) {
+    return nftDataCache[id];
+  }
+  
+  const result = {
+    id: id,
+    image_url: getNFTImageUrl(id),
+    name: `StarryMiu #${id}`
+  };
+  nftDataCache[id] = result;
+  return result;
+}
+
+function nftColor(id) {
+  const h = (id * 137.508) % 360;
+  return `hsl(${h},70%,45%)`;
+}
+function nftColorLight(id) {
+  const h = (id * 137.508) % 360;
+  return `hsl(${h},80%,65%)`;
+}
+
+function nftSVG(id) {
+  const c1 = nftColor(id), c2 = nftColorLight(id);
+  const face = ['=^.^=','(>ω<)','(=①ω①=)','(^・ω・^)','(=ΦωΦ=)','ฅ^•ﻌ•^ฅ','(=^-ω-^=)','(≧◡≦)','(=✪ᆺ✪=)','(ΦεΦ)'][id % 10];
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+    <defs><linearGradient id="g${id}" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient></defs>
+    <rect width="200" height="200" fill="url(#g${id})" rx="8"/>
+    <text x="100" y="90" text-anchor="middle" fill="white" font-size="14" font-family="monospace" opacity="0.9">${face}</text>
+    <text x="100" y="130" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="monospace">#${String(id).padStart(4,'0')}</text>
+  </svg>`;
+  return 'data:image/svg+xml,' + encodeURIComponent(svg);
+}
+
+const characters = [];
+
+function parseCSV(data) {
+  const lines = data.split('\n');
+  const headers = lines[0].split(',');
+  for (let i = 1; i < lines.length; i++) {
+    const values = lines[i].split(',');
+    if (values.length >= 6) {
+      characters.push({
+        token_id: parseInt(values[0]),
+        name: values[1],
+        role_type: values[2],
+        personality: values[3],
+        skill: values[4],
+        story: values.slice(5).join(',').trim()
+      });
+    }
+  }
+}
+
+function loadCharacters() {
+  fetch('jiaose.csv')
+    .then(response => response.text())
+    .then(data => {
+      parseCSV(data);
+    })
+    .catch(err => {
+      console.error('Failed to load characters:', err);
+    });
+}
+
+loadCharacters();
+
+function getCharacterById(id) {
+  return characters.find(c => c.token_id === id);
+}
+
+function getStory(id) {
+  const char = getCharacterById(id);
+  return char ? char.story : '未知角色';
+}
+
+const votes = {};
+const VOTE_CONFIG = {
+  initialMin: 18,
+  initialMax: 189,
+  dailyMin: 15,
+  dailyMax: 217
+};
+let lastVoteDate = '';
+let votedNFTsToday = {};
+
+function getClientIP() {
+  return new Promise((resolve) => {
+    fetch('https://api.ipify.org?format=json')
+      .then(response => response.json())
+      .then(data => resolve(data.ip || 'unknown'))
+      .catch(() => resolve('unknown'));
+  });
+}
+
+function getTodayString() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
+async function loadVotes() {
+  try {
+    const response = await fetch('votes.json');
+    const data = await response.json();
+    
+    if (data.votes) {
+      Object.assign(votes, data.votes);
+    }
+    
+    lastVoteDate = data.lastUpdate || getTodayString();
+    
+    const today = getTodayString();
+    if (lastVoteDate !== today) {
+      applyDailyGrowth();
+      lastVoteDate = today;
+      saveVotes();
+    }
+    
+    for (let i = 1; i <= TOTAL_NFT; i++) {
+      if (votes[i] === undefined) {
+        votes[i] = Math.floor(Math.random() * (VOTE_CONFIG.initialMax - VOTE_CONFIG.initialMin + 1)) + VOTE_CONFIG.initialMin;
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load votes:', error);
+    initVotes();
+  }
+}
+
+function initVotes() {
+  for (let i = 1; i <= TOTAL_NFT; i++) {
+    votes[i] = Math.floor(Math.random() * (VOTE_CONFIG.initialMax - VOTE_CONFIG.initialMin + 1)) + VOTE_CONFIG.initialMin;
+  }
+  lastVoteDate = getTodayString();
+  saveVotes();
+}
+
+function applyDailyGrowth() {
+  for (let i = 1; i <= TOTAL_NFT; i++) {
+    const growth = Math.floor(Math.random() * (VOTE_CONFIG.dailyMax - VOTE_CONFIG.dailyMin + 1)) + VOTE_CONFIG.dailyMin;
+    votes[i] = (votes[i] || 0) + growth;
+  }
+}
+
+function saveVotes() {
+  const data = {
+    version: "1.0",
+    lastUpdate: lastVoteDate,
+    dailyGrowth: {
+      min: VOTE_CONFIG.dailyMin,
+      max: VOTE_CONFIG.dailyMax
+    },
+    initialVotes: {
+      min: VOTE_CONFIG.initialMin,
+      max: VOTE_CONFIG.initialMax
+    },
+    votes: votes
+  };
+  
+  fetch('votes.json', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  }).catch(error => {
+    console.error('Failed to save votes:', error);
+  });
+}
+
+async function canVote(nftId) {
+  const today = getTodayString();
+  const ip = await getClientIP();
+  
+  if (!votedNFTsToday[ip]) {
+    votedNFTsToday[ip] = [];
+  }
+  
+  if (votedNFTsToday[ip].includes(nftId)) {
+    return false;
+  }
+  
+  return true;
+}
+
+async function addVote(nftId) {
+  const today = getTodayString();
+  const ip = await getClientIP();
+  
+  if (!votedNFTsToday[ip]) {
+    votedNFTsToday[ip] = [];
+  }
+  
+  if (votedNFTsToday[ip].includes(nftId)) {
+    return false;
+  }
+  
+  votes[nftId] = (votes[nftId] || 0) + 1;
+  votedNFTsToday[ip].push(nftId);
+  saveVotes();
+  
+  return true;
+}
+
+/* ========== MOBILE MENU ========== */
+const menuBtn = document.getElementById('menuBtn');
+const menuOverlay = document.getElementById('menuOverlay');
+const menuClose = document.getElementById('menuClose');
+
+menuBtn.addEventListener('click', () => {
+  menuOverlay.classList.add('active');
+});
+
+menuClose.addEventListener('click', () => {
+  menuOverlay.classList.remove('active');
+});
+
+document.querySelectorAll('.menu-link').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.menu-link').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.page).classList.add('active');
+    menuOverlay.classList.remove('active');
+  });
+});
+
+/* ========== HOME PAGE ========== */
+const homeTerminal = document.getElementById('homeTerminal');
+const commandHistory = [];
+let historyIndex = -1;
+let isProcessing = false;
+
+function initHome() {
+  homeTerminal.innerHTML = '';
+  addOutput(' Welcome to StarryMiu Mobile', 'highlight');
+  addOutput(' ─────────────────────────', 'dim');
+  addOutput(' 输入角色编号 (1-1132) 查看故事');
+  addOutput(' 输入 <span class="warn">help</span> 查看命令');
+  addOutput(' 输入 <span class="pink">random</span> 随机查看');
+  addOutput('');
+
+  addPrompt();
+}
+
+function addOutput(text, cls = '') {
+  const div = document.createElement('div');
+  div.className = 'cmd-output' + (cls ? ' ' + cls : '');
+  div.innerHTML = text;
+  homeTerminal.appendChild(div);
+  homeTerminal.scrollTop = homeTerminal.scrollHeight;
+}
+
+function addPrompt() {
+  const existingLine = homeTerminal.querySelector('.cmd-line');
+  if (existingLine) {
+    existingLine.remove();
+  }
+  
+  const line = document.createElement('div');
+  line.className = 'cmd-line';
+  line.innerHTML = `<span class="cmd-prompt">starry_miu@nft:~$</span>`;
+  const input = document.createElement('input');
+  input.className = 'cmd-input';
+  input.setAttribute('autocomplete', 'off');
+  input.setAttribute('autocorrect', 'off');
+  input.setAttribute('autocapitalize', 'off');
+  input.setAttribute('spellcheck', 'false');
+  input.setAttribute('placeholder', '输入命令...');
+  input.style.caretColor = 'var(--accent-cyan)';
+  input.addEventListener('keydown', handleCommand);
+  line.appendChild(input);
+  homeTerminal.appendChild(line);
+  input.focus();
+  homeTerminal.scrollTop = homeTerminal.scrollHeight;
+}
+
+function handleCommand(e) {
+  if (isProcessing && e.key !== 'Enter') return;
+
+  if (e.key === 'Enter' && !isProcessing) {
+    isProcessing = true;
+    const input = e.target;
+    const cmd = input.value.trim();
+    input.disabled = true;
+    input.style.display = 'none';
+
+    const promptLine = input.parentElement;
+    const promptText = promptLine.querySelector('.cmd-prompt').textContent;
+
+    if (cmd) {
+      commandHistory.push(cmd);
+      historyIndex = commandHistory.length;
+
+      promptLine.innerHTML = `<span style="color:var(--accent-green)">${promptText}</span> <span style="color:var(--text-primary)">${escapeHtml(cmd)}</span>`;
+
+      processCommand(cmd, () => {
+        setTimeout(() => {
+          addPrompt();
+          isProcessing = false;
+        }, 100);
+      });
+    } else {
+      promptLine.remove();
+      addPrompt();
+      isProcessing = false;
+    }
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (historyIndex > 0) {
+      historyIndex--;
+      e.target.value = commandHistory[historyIndex];
+    }
+  } else if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (historyIndex < commandHistory.length - 1) {
+      historyIndex++;
+      e.target.value = commandHistory[historyIndex];
+    } else {
+      historyIndex = commandHistory.length;
+      e.target.value = '';
+    }
+  }
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function processCommand(cmd, callback) {
+  const num = parseInt(cmd);
+  if (cmd === 'help') {
+    addOutput('');
+    addOutput(' <span class="highlight">命令:</span>');
+    addOutput('  <span class="warn">[1-1132]</span> 查看角色');
+    addOutput('  <span class="warn">random</span> 随机查看');
+    addOutput('  <span class="warn">stats</span> 统计');
+    addOutput('  <span class="warn">clear</span> 清屏');
+    addOutput('');
+    callback();
+  } else if (cmd === 'clear') {
+    homeTerminal.innerHTML = '';
+    callback();
+  } else if (cmd === 'random') {
+    const id = Math.floor(Math.random() * TOTAL_NFT) + 1;
+    showNFTStory(id, callback);
+  } else if (cmd === 'stats') {
+    addOutput('');
+    addOutput(' <span class="highlight">StarryMiu NFT</span>');
+    addOutput(` 总数量: <span class="warn">${TOTAL_NFT}</span>`);
+    addOutput(' 链: <span class="warn">Base</span>');
+    addOutput('');
+    callback();
+  } else if (num >= 1 && num <= TOTAL_NFT) {
+    showNFTStory(num, callback);
+  } else {
+    addOutput('');
+    addOutput(` <span class="pink">未知命令</span>`);
+    addOutput(' 输入 <span class="warn">help</span> 查看命令');
+    addOutput('');
+    callback();
+  }
+}
+
+function showNFTStory(id, callback) {
+  const char = getCharacterById(id);
+  if (char) {
+    addOutput('');
+    addOutput(` <span class="warn">#${String(id).padStart(4,'0')} ${char.name}</span>`);
+    addOutput('');
+    addOutput(` <span class="pink">类型:</span> ${char.role_type}`);
+    addOutput(` <span class="pink">性格:</span> ${char.personality}`);
+    addOutput(` <span class="pink">技能:</span> ${char.skill}`);
+    addOutput('');
+    addOutput(` ${char.story}`);
+    addOutput('');
+  } else {
+    addOutput('');
+    addOutput(` <span class="pink">未找到 ${id}</span>`);
+    addOutput('');
+  }
+  
+  if (callback) callback();
+}
+
+/* ========== EXHIBITION PAGE ========== */
+const storyChapters = [
+  { title: '序章：起源', text: '我曾买过至少五十个NFT项目。\n那些精美的画面、动人的故事、曾经让我心动的路线图……\n最后几乎全部归零。\n项目方一个接一个消失，社区变成鬼服，曾经的承诺成了笑话。我心疼过、愤怒过，也失望过。\n但我始终放不下对NFT的爱，那种把瞬间变成永恒、把热爱写进区块链的感觉。我不想再把希望寄托在任何人身上。\n于是，我决定：\n自己做，自己 mint，自己拥有。没有白名单，没有公售，没有任何人能 mint。\n这个合集，只属于我一个人。\n我亲手铸造它，只为给自己一个答案。这就是StarryMiu NFT的起源，一个被NFT伤透却依然深爱它的普通人，最终选择埋藏对NFT热爱的故事。' },
+  { title: '第一章：诞生', text: '我关掉了所有项目的Discord和Twitter，\n打开了自己的电脑和钱包。没有团队，没有营销，没有路线图。\n只有我，和我这些年对NFT最真实的热爱与情感。我开始创作，把所有失望、所有热爱、不屈的倔强，一笔一笔画进作品里。\n\n当我把第一张作品铸造上链的那一刻，\n我对着屏幕轻轻笑了。\n\n"这次，没有项目方会跑路，\n这次，不会再归零，\n因为它只属于我一个人。"\n\nStarryMiu NFT 合集就这样诞生了。\n每一张，都是我给自己的一枚勋章，\n证明我曾经认真爱过这个世界，也认真救赎过自己。' },
+  { title: '第二章：冒险', text: '现在，这些NFT安静地躺在我的钱包里。\n\n它们不会被任何人 mint，不会被人炒作，更不会有传统NFT的统一风格，StarryMiu NFT它的风格不是统一风格化的NFT，某种意义上来讲，它已经不属于NFT，它属于个人合集。\n它们只陪伴我一个人。\n\n我会在深夜打开钱包，一张一张翻看，\n像翻看自己这些年的日记。\n它们记录着我被伤过的心、被项目方们熄灭的热爱。\n\n每当我再看到别人项目归零的消息，我就会打开自己的StarryMiu NFT合集，轻轻摸一下屏幕，然后告诉自己：\n"没关系，我已经有了属于自己的永恒。"' },
+  { title: '第三章：未来', text: '未来，这个合集的NFT，我可能会赠送给更多和我一样的NFT爱好者，\n\n我可能会继续创作新的章节故事，当然，这取决于我能否解决生存的问题，我会抽出时间来撰写一些故事内容，把更多属于我一个人的故事、情绪、成长，记录下来，\n\n它不会变成商业项目，不会对外开放，它只是我一个人的数字保险箱。\n一个人的艺术馆，一个人的自我证明。它会一直陪着我，见证我走过的每一个脚印。\n\n故事的最后，我想对自己说：\n"我把对NFT所有的爱与失望，全部铸造成了只属于我自己的永恒。\n从今往后，我不再需要相信任何项目方，我只需要相信我自己。\n\nStarryMiu NFT 一个普通人给自己铸造的、只属于自己的NFT合集。' },
+];
+let currentChapter = 0;
+let typewriterTimer = null;
+
+function initExhibition() {
+  const container = document.getElementById('storyTerminal');
+  container.innerHTML = '';
+
+  // Chapter navigation
+  const nav = document.createElement('div');
+  nav.className = 'story-nav';
+  nav.id = 'storyNav';
+  storyChapters.forEach((ch, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'story-nav-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = '第' + (i + 1) + '章';
+    btn.addEventListener('click', () => switchChapter(i));
+    nav.appendChild(btn);
+  });
+  container.appendChild(nav);
+
+  const content = document.createElement('div');
+  content.id = 'storyContent';
+  container.appendChild(content);
+
+  renderChapter(0);
+}
+
+function switchChapter(idx) {
+  if (idx === currentChapter) return;
+  currentChapter = idx;
+  document.querySelectorAll('#storyNav .story-nav-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === idx);
+  });
+  renderChapter(idx);
+}
+
+function renderChapter(idx) {
+  if (typewriterTimer) { clearInterval(typewriterTimer); typewriterTimer = null; }
+  const area = document.getElementById('storyContent');
+  area.innerHTML = '';
+
+  const ch = storyChapters[idx];
+
+  const title = document.createElement('div');
+  title.className = 'story-chapter-title';
+  title.innerHTML = '<span class="ch-num">[' + String(idx).padStart(2,'0') + ']</span>' + ch.title;
+  area.appendChild(title);
+
+  const textEl = document.createElement('div');
+  textEl.className = 'story-text';
+  area.appendChild(textEl);
+
+  let charIdx = 0;
+  const fullText = ch.text;
+  typewriterTimer = setInterval(() => {
+    if (charIdx < fullText.length) {
+      const chunk = fullText.substring(charIdx, Math.min(charIdx + 3, fullText.length));
+      textEl.textContent += chunk;
+      charIdx += 3;
+      area.scrollTop = area.scrollHeight;
+    } else {
+      clearInterval(typewriterTimer);
+      typewriterTimer = null;
+    }
+  }, 30);
+
+  textEl.addEventListener('click', () => {
+    if (typewriterTimer) {
+      clearInterval(typewriterTimer);
+      typewriterTimer = null;
+      textEl.textContent = fullText;
+    }
+  });
+}
+
+/* ========== VOTE PAGE ========== */
+let currentVotePage = 1;
+
+function renderVotePage(page) {
+  currentVotePage = page;
+  const container = document.getElementById('voteGrid');
+  container.innerHTML = '';
+  
+  const startIdx = (page - 1) * PER_PAGE;
+  const endIdx = Math.min(startIdx + PER_PAGE, availableNFTs.length);
+  const pageNFTs = availableNFTs.slice(startIdx, endIdx);
+  
+  const firstId = pageNFTs.length > 0 ? pageNFTs[0] : '-';
+  const lastId = pageNFTs.length > 0 ? pageNFTs[pageNFTs.length - 1] : '-';
+
+  const info = document.createElement('div');
+  info.className = 'cmd-output dim';
+  info.textContent = ` > NFTs #${firstId} - #${lastId} (${page}/${TOTAL_PAGES})`;
+  container.appendChild(info);
+
+  const grid = document.createElement('div');
+  grid.className = 'nft-grid';
+  
+  for (const nftId of pageNFTs) {
+    const wrap = document.createElement('div');
+    const card = document.createElement('div');
+    card.className = 'nft-card';
+    
+    const img = createNFTImage(nftId);
+    card.appendChild(img);
+    
+    const idLabel = document.createElement('div');
+    idLabel.className = 'nft-id';
+    idLabel.textContent = `#${String(nftId).padStart(4,'0')}`;
+    const btn = document.createElement('button');
+    btn.className = 'vote-btn';
+    btn.textContent = `投票 (${votes[nftId] || 0})`;
+    btn.addEventListener('click', async () => {
+      const success = await addVote(nftId);
+      if (success) {
+        btn.textContent = `投票 (${votes[nftId]})`;
+        btn.style.borderColor = 'var(--accent-magenta)';
+        btn.style.color = 'var(--accent-magenta)';
+        setTimeout(() => { btn.style.borderColor = ''; btn.style.color = ''; }, 600);
+      } else {
+        btn.style.borderColor = '#ff3333';
+        btn.style.color = '#ff3333';
+        setTimeout(() => { btn.style.borderColor = ''; btn.style.color = ''; }, 600);
+      }
+    });
+    wrap.appendChild(card);
+    wrap.appendChild(idLabel);
+    wrap.appendChild(btn);
+    grid.appendChild(wrap);
+  }
+  container.appendChild(grid);
+
+  document.getElementById('voteCmdPage').textContent = page;
+  renderPagination();
+}
+
+function renderPagination() {
+  const container = document.getElementById('votePagination');
+  container.innerHTML = '';
+
+  const prevBtn = document.createElement('button');
+  prevBtn.className = 'page-btn nav-arrow';
+  prevBtn.textContent = '上一页';
+  prevBtn.disabled = currentVotePage === 1;
+  prevBtn.addEventListener('click', () => { if (currentVotePage > 1) renderVotePage(currentVotePage - 1); });
+  container.appendChild(prevBtn);
+
+  const pages = [];
+  pages.push(1);
+  if (currentVotePage !== 1 && currentVotePage !== TOTAL_PAGES) {
+    pages.push(currentVotePage);
+  }
+  if (TOTAL_PAGES > 1) pages.push(TOTAL_PAGES);
+
+  for (let i = 0; i < pages.length; i++) {
+    const p = pages[i];
+    if (i > 0 && p - pages[i - 1] > 1) {
+      const dots = document.createElement('span');
+      dots.className = 'page-info';
+      dots.textContent = '...';
+      container.appendChild(dots);
+    }
+    addPageBtn(container, p);
+  }
+
+  const nextBtn = document.createElement('button');
+  nextBtn.className = 'page-btn nav-arrow';
+  nextBtn.textContent = '下一页';
+  nextBtn.disabled = currentVotePage === TOTAL_PAGES;
+  nextBtn.addEventListener('click', () => { if (currentVotePage < TOTAL_PAGES) renderVotePage(currentVotePage + 1); });
+  container.appendChild(nextBtn);
+}
+
+function addPageBtn(container, p) {
+  const btn = document.createElement('button');
+  btn.className = 'page-btn' + (p === currentVotePage ? ' active' : '');
+  btn.textContent = p;
+  btn.addEventListener('click', () => renderVotePage(p));
+  container.appendChild(btn);
+}
+
+/* ========== ABOUT PAGE ========== */
+function initAbout() {
+  const container = document.getElementById('aboutContent');
+  container.innerHTML = `
+<div class="ascii-art">   /&#92;_/&#92;<br/>  ( o.o )<br/>   &gt; ^ &lt;     StarryMiu<br/>  /|   |&#92;<br/>  (_|   |_)</div>
+<div class="cmd-output"><span class="highlight">> cat creator_info.txt</span></div>
+<div class="about-line">  <span class="label">项目 :</span> <span class="value">StarryMiu NFT</span></div>
+<div class="about-line">  <span class="label">创作者 :</span> <a href="https://x.com/_StarryMiu" target="_blank" rel="noopener" style="color:var(--accent-magenta);text-decoration:none">StarryMiu</a></div>
+<div class="about-line">  <span class="label">X :</span> <a href="https://x.com/_StarryMiu" target="_blank" rel="noopener" style="color:var(--accent-magenta);text-decoration:none">@_StarryMiu</a></div>
+<div class="about-line">  <span class="label">数量 :</span> <span class="value">${TOTAL_NFT} NFTs</span></div>
+<div class="about-line">  <span class="label">链 :</span> <span class="value">Base</span></div>
+<div class="about-line">  <span class="label">合约 :</span> <span class="value" style="font-size:.7rem">0x88d1...5d721</span></div>
+<div class="cmd-output"><span class="highlight">> cat mission.txt</span></div>
+<div class="cmd-output" style="line-height:1.9">  StarryMiu 是我独自创建并构建的一套私人 NFT 藏品。</div>
+<div class="cmd-output"><span class="highlight">> cat links.txt</span></div>
+<div class="about-line">  <span class="label">[01]</span> <a href="https://t.me/StarryMiuCuteKitten" target="_blank" rel="noopener" style="color:var(--accent-cyan);text-decoration:none">Telegram 频道</a></div>
+<div class="about-line">  <span class="label">[02]</span> <a href="https://t.me/StarryMiu/1" target="_blank" rel="noopener" style="color:var(--accent-cyan);text-decoration:none">Telegram 群组</a></div>
+<div class="about-line">  <span class="label">[03]</span> <a href="https://cutekitten.hair/" target="_blank" rel="noopener" style="color:var(--accent-cyan);text-decoration:none">作者作品</a></div>
+<div class="about-line">  <span class="label">[04]</span> <a href="https://opensea.io/collection/starrymiu" target="_blank" rel="noopener" style="color:var(--accent-cyan);text-decoration:none">OpenSea</a></div>
+<div class="cmd-output dim">  [EOF] - starry_miu@nft-terminal:~$ <span class="typing-cursor"></span></div>
+  `;
+}
+
+/* ========== INIT ========== */
+async function initApp() {
+  await loadVotes();
+  initHome();
+  initExhibition();
+  renderVotePage(1);
+  initAbout();
+}
+
+initApp();
+
+// Auto-focus on home terminal input when clicking anywhere on home page
+document.getElementById('home').addEventListener('click', (e) => {
+  if (e.target.tagName !== 'INPUT') {
+    const inputs = homeTerminal.querySelectorAll('.cmd-input:not([disabled])');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }
+});
+</script>
+</body>
+</html>
