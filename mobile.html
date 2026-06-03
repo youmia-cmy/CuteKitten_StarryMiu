@@ -4,12 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>StarryMiu NFT Terminal - Mobile</title>
+<!-- 设备检测和重定向 -->
 <script>
 (function() {
+  // 检测是否为移动设备
   function isMobile() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
            (window.innerWidth <= 768 && 'ontouchstart' in window);
   }
+
+  // 如果不是移动设备，跳转到PC端页面
   if (!isMobile() && window.location.href.includes('mobile.html')) {
     window.location.href = 'index.html';
   }
@@ -18,6 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
+/* === RESET & BASE === */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
   --bg:#0a0a0f;--term-bg:#0d0d14;--text-primary:#c0ffc0;--text-dim:#4a7a4a;
@@ -28,12 +33,18 @@
 }
 html{font-size:16px;scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text-primary);font-family:var(--font-mono);overflow-x:hidden;min-height:100vh}
+
+/* === SCANLINE OVERLAY === */
 body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.15) 2px,rgba(0,0,0,0.15) 4px);
   animation:scanFlicker 8s infinite}
 @keyframes scanFlicker{0%,100%{opacity:.4}50%{opacity:.6}}
+
+/* === CRT GLOW === */
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
   background:radial-gradient(ellipse at center,transparent 50%,rgba(0,0,0,0.6) 100%)}
+
+/* === MOBILE NAVIGATION === */
 .nav{position:fixed;top:0;left:0;right:0;z-index:1000;
   background:rgba(10,10,15,0.95);backdrop-filter:blur(10px);
   border-bottom:1px solid rgba(0,240,255,0.15);padding:0 1rem;height:60px;
@@ -41,9 +52,13 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
 .nav-logo{font-size:1rem;font-weight:700;letter-spacing:1px;
   background:var(--grad-1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .nav-logo span{font-weight:300;opacity:.6;-webkit-text-fill-color:var(--text-dim);font-size:.75rem;display:block;margin-top:2px}
+
+/* Mobile Menu Button */
 .menu-btn{background:none;border:none;color:var(--accent-cyan);font-size:1.5rem;
   cursor:pointer;padding:.5rem;z-index:1001}
 .menu-btn:active{transform:scale(0.95)}
+
+/* Mobile Menu Overlay */
 .menu-overlay{position:fixed;inset:0;background:rgba(10,10,15,0.98);
   z-index:999;display:none;flex-direction:column;align-items:center;
   justify-content:center;gap:1.5rem}
@@ -55,11 +70,15 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
 .menu-link:active,.menu-link.active{color:var(--accent-cyan);border-color:var(--accent-cyan)}
 .menu-close{position:absolute;top:1.5rem;right:1.5rem;background:none;border:none;
   color:var(--accent-cyan);font-size:2rem;cursor:pointer}
+
+/* === PAGES === */
 .page{display:none;padding-top:80px;min-height:100vh;padding-bottom:2rem;
   padding-left:1rem;padding-right:1rem}
 .page.active{display:flex;flex-direction:column;animation:fadeIn .5s ease}
 .page.active.page-center{justify-content:flex-start;align-items:center}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* === TERMINAL WINDOW === */
 .terminal{margin:1rem 0;max-width:100%;border-radius:12px;overflow:visible;position:relative;
   background:var(--term-bg);border:2px solid transparent;
   background-clip:padding-box;
@@ -93,6 +112,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
 .terminal-dot.r{background:#ff5f56}.terminal-dot.y{background:#ffbd2e}.terminal-dot.g{background:#27c93f}
 .terminal-title{margin-left:.8rem;font-size:.85rem;color:var(--text-dim);letter-spacing:1px}
 .terminal-body{padding:1rem;min-height:200px;position:relative;overflow-x:auto}
+
+/* === NFT GRID - MOBILE OPTIMIZED === */
 .nft-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:.8rem 0}
 .nft-grid>div{display:flex;flex-direction:column;align-items:center;min-width:0}
 .nft-grid .nft-card{width:100%;padding-top:100%;position:relative;overflow:hidden;border-radius:6px}
@@ -109,6 +130,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
 .nft-img{width:100%;height:100%;object-fit:cover;border-radius:6px;display:block}
 .nft-id{text-align:center;font-size:.75rem;color:var(--accent-cyan);padding:6px 0;
   letter-spacing:1px;font-weight:500}
+
+/* === HOME PAGE COMMAND LINE === */
 .cmd-line{display:flex;align-items:center;gap:.5rem;padding:.5rem 0}
 .cmd-prompt{color:var(--accent-green);white-space:nowrap;font-weight:700;font-size:.9rem}
 .cmd-input{flex:1;background:none;border:none;color:var(--text-primary);font-family:var(--font-mono);
@@ -121,11 +144,15 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
 .typing-cursor{display:inline-block;width:8px;height:18px;background:var(--accent-green);
   animation:blink 1s step-end infinite;vertical-align:text-bottom;margin-left:2px}
 @keyframes blink{50%{opacity:0}}
+
+/* === VOTE SECTION - MOBILE === */
 .vote-btn{background:none;border:2px solid var(--accent-cyan);color:var(--accent-cyan);
   font-family:var(--font-mono);font-size:.75rem;padding:8px 12px;border-radius:6px;
   cursor:pointer;transition:all .2s;letter-spacing:.5px;min-height:44px;width:100%}
 .vote-btn:active{background:var(--accent-cyan);color:var(--bg);transform:scale(0.98)}
 .vote-count{font-size:.75rem;color:var(--accent-magenta);text-align:center;margin-top:4px}
+
+/* === PAGINATION - MOBILE === */
 .pagination{display:flex;justify-content:center;align-items:center;gap:.8rem;padding:1.2rem 0;
   font-size:1rem;user-select:none;flex-wrap:wrap}
 .page-btn{background:none;border:none;color:var(--text-dim);
@@ -138,10 +165,14 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
 .page-btn.nav-arrow:active{color:#ff6666;text-shadow:0 0 6px rgba(255,51,51,0.4)}
 .page-btn.nav-arrow:disabled{color:#4a2020;cursor:default;text-shadow:none;opacity:.5}
 .page-info{color:var(--text-dim);font-size:.9rem;padding:0 .5rem}
+
+/* === ABOUT === */
 .about-line{padding:.4rem 0;line-height:1.8;font-size:.9rem}
 .about-line .label{color:var(--text-dim)}
 .about-line .value{color:var(--accent-cyan)}
 .ascii-art{color:var(--accent-green);font-size:.7rem;line-height:1.3;padding:1rem 0;opacity:.8}
+
+/* === STORY TERMINAL === */
 .story-chapter{padding:1rem 0;border-bottom:1px solid rgba(0,240,255,0.06)}
 .story-chapter:last-child{border-bottom:none}
 .story-chapter-title{color:var(--accent-cyan);font-size:.9rem;font-weight:700;letter-spacing:1px;
@@ -160,17 +191,25 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
   background:rgba(0,240,255,0.05)}
 .story-cmd{color:var(--text-dim);font-size:.75rem;padding:.4rem 0}
 .story-cmd .highlight{color:var(--accent-cyan)}
+
+/* === EXHIBITION DESC === */
 .exhibit-desc{padding:1.2rem;color:var(--text-dim);line-height:1.8;font-size:.9rem;
   border-top:1px solid rgba(0,240,255,0.08)}
 .exhibit-desc .em{color:var(--accent-cyan)}
+
+/* === SCROLLBAR === */
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:rgba(0,240,255,0.2);border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:rgba(0,240,255,0.4)}
+
+/* === Top 10 NFT grid === */
 .nft-grid-top{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:.5rem 0}
 .nft-grid-top>div{display:flex;flex-direction:column;align-items:center;min-width:0}
 .nft-grid-top .nft-card{width:100%;padding-top:100%;position:relative;overflow:hidden;border-radius:6px}
 .nft-grid-top .nft-card .nft-img{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover}
+
+/* === Mobile-specific adjustments === */
 @media(max-width:480px){
   .nft-grid{grid-template-columns:repeat(2,1fr);gap:10px}
   .nft-grid-top{grid-template-columns:repeat(2,1fr)}
@@ -182,11 +221,13 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
 </head>
 <body>
 
+<!-- NAVIGATION -->
 <nav class="nav">
   <div class="nav-logo">STARRY_MIU <span>NFT_MOBILE</span></div>
   <button class="menu-btn" id="menuBtn">☰</button>
 </nav>
 
+<!-- MOBILE MENU OVERLAY -->
 <div class="menu-overlay" id="menuOverlay">
   <button class="menu-close" id="menuClose">×</button>
   <button class="menu-link active" data-page="home">首页</button>
@@ -195,26 +236,33 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
   <button class="menu-link" data-page="about">关于</button>
 </div>
 
+<!-- HOME PAGE -->
 <div id="home" class="page active page-center">
   <div class="terminal">
     <div class="terminal-header">
       <div class="terminal-dot r"></div><div class="terminal-dot y"></div><div class="terminal-dot g"></div>
       <span class="terminal-title">starry_miu@nft-terminal:~$ story_mode</span>
     </div>
-    <div class="terminal-body" id="homeTerminal"></div>
+    <div class="terminal-body" id="homeTerminal">
+      <!-- filled by JS -->
+    </div>
   </div>
 </div>
 
+<!-- EXHIBITION PAGE -->
 <div id="exhibition" class="page page-center">
   <div class="terminal" style="min-height:500px">
     <div class="terminal-header">
       <div class="terminal-dot r"></div><div class="terminal-dot y"></div><div class="terminal-dot g"></div>
       <span class="terminal-title">starry_miu@nft-terminal:~$ cat story.txt</span>
     </div>
-    <div class="terminal-body" id="storyTerminal"></div>
+    <div class="terminal-body" id="storyTerminal">
+      <!-- story chapters rendered by JS -->
+    </div>
   </div>
 </div>
 
+<!-- VOTE PAGE -->
 <div id="vote" class="page page-center">
   <div class="terminal" style="width:100%">
     <div class="terminal-header">
@@ -223,7 +271,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
     </div>
     <div class="terminal-body">
       <div class="cmd-line vote-cmd-line">
-        <span class="cmd-prompt">starry_miu@nft:~$</span>
+        <span class="cmd-prompt">starry_miu@nft-terminal:~$</span>
         <span style="color:var(--text-primary)"> vote --page <span id="voteCmdPage">1</span></span>
         <span class="typing-cursor"></span>
       </div>
@@ -233,6 +281,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
   </div>
 </div>
 
+<!-- ABOUT PAGE -->
 <div id="about" class="page">
   <div class="terminal">
     <div class="terminal-header">
@@ -244,8 +293,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
 </div>
 
 <script>
+/* ========== DATA ========== */
 const TOTAL_NFT = 1132;
-const PER_PAGE = 12;
+const PER_PAGE = 12; // Reduced for mobile
 const CONTRACT_ADDRESS = '0x88d1e3b2913f4c44436d2b21b154c90157b5d721';
 const IPFS_CID = 'bafybeidcmp6jbjy2bqrj2xmemxme6bhmixtkkuwfq3gmgh34h7syclclqa';
 
@@ -289,7 +339,9 @@ function createNFTImage(id) {
   img.loading = 'lazy';
   img.width = 400;
   img.height = 400;
+  
   img.setAttribute('data-src', getNFTImageUrl(id));
+  
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -298,14 +350,18 @@ function createNFTImage(id) {
       }
     });
   }, { rootMargin: '100px' });
+  
   observer.observe(img);
+  
   return img;
 }
 
 function loadNFTImage(img, id) {
   const currentGatewayIndex = 0;
   const src = img.getAttribute('data-src');
+  
   img.src = src;
+  
   img.onerror = function() {
     const currentUrl = this.src;
     for (let i = 0; i < gateways.length - 1; i++) {
@@ -330,6 +386,7 @@ function getNFTData(id) {
   if (nftDataCache[id]) {
     return nftDataCache[id];
   }
+  
   const result = {
     id: id,
     image_url: getNFTImageUrl(id),
@@ -431,16 +488,20 @@ async function loadVotes() {
   try {
     const response = await fetch('votes.json');
     const data = await response.json();
+    
     if (data.votes) {
       Object.assign(votes, data.votes);
     }
+    
     lastVoteDate = data.lastUpdate || getTodayString();
+    
     const today = getTodayString();
     if (lastVoteDate !== today) {
       applyDailyGrowth();
       lastVoteDate = today;
       saveVotes();
     }
+    
     for (let i = 1; i <= TOTAL_NFT; i++) {
       if (votes[i] === undefined) {
         votes[i] = Math.floor(Math.random() * (VOTE_CONFIG.initialMax - VOTE_CONFIG.initialMin + 1)) + VOTE_CONFIG.initialMin;
@@ -481,6 +542,7 @@ function saveVotes() {
     },
     votes: votes
   };
+  
   fetch('votes.json', {
     method: 'PUT',
     headers: {
@@ -495,30 +557,38 @@ function saveVotes() {
 async function canVote(nftId) {
   const today = getTodayString();
   const ip = await getClientIP();
+  
   if (!votedNFTsToday[ip]) {
     votedNFTsToday[ip] = [];
   }
+  
   if (votedNFTsToday[ip].includes(nftId)) {
     return false;
   }
+  
   return true;
 }
 
 async function addVote(nftId) {
   const today = getTodayString();
   const ip = await getClientIP();
+  
   if (!votedNFTsToday[ip]) {
     votedNFTsToday[ip] = [];
   }
+  
   if (votedNFTsToday[ip].includes(nftId)) {
     return false;
   }
+  
   votes[nftId] = (votes[nftId] || 0) + 1;
   votedNFTsToday[ip].push(nftId);
   saveVotes();
+  
   return true;
 }
 
+/* ========== MOBILE MENU ========== */
 const menuBtn = document.getElementById('menuBtn');
 const menuOverlay = document.getElementById('menuOverlay');
 const menuClose = document.getElementById('menuClose');
@@ -541,137 +611,21 @@ document.querySelectorAll('.menu-link').forEach(btn => {
   });
 });
 
+/* ========== HOME PAGE ========== */
 const homeTerminal = document.getElementById('homeTerminal');
 const commandHistory = [];
 let historyIndex = -1;
 let isProcessing = false;
-
-let currentMirrorChapter = 0;
-let isReadingMirrorStory = false;
-let currentChapter = 0;
-let typewriterTimer = null;
-
-const storyChapters = [
-  { title: '序章：起源', text: '我曾买过至少五十个NFT项目。\n那些精美的画面、动人的故事、曾经让我心动的路线图……\n最后几乎全部归零。\n项目方一个接一个消失，社区变成鬼服，曾经的承诺成了笑话。我心疼过、愤怒过，也失望过。\n但我始终放不下对NFT的爱，那种把瞬间变成永恒、把热爱写进区块链的感觉。我不想再把希望寄托在任何人身上。\n于是，我决定：\n自己做，自己 mint，自己拥有。没有白名单，没有公售，没有任何人能 mint。\n这个合集，只属于我一个人。\n我亲手铸造它，只为给自己一个答案。这就是StarryMiu NFT的起源，一个被NFT伤透但依然深爱它的普通人，最终选择埋藏对NFT热爱的故事。' },
-  { title: '第一章：诞生', text: '我关掉了所有项目的Discord和Twitter，\n打开了自己的电脑和钱包。没有团队，没有营销，没有路线图。\n只有我，和我这些年对NFT最真实的热爱与情感。我开始创作，把所有失望、所有热爱、不屈的倔强，一笔一笔画进作品里。\n\n当我把第一张作品铸造上链的那一刻，\n我对着屏幕轻轻笑了。\n\n"这次，没有项目方会跑路，\n这次，不会再归零，\n因为它只属于我一个人。"\n\nStarryMiu NFT 合集就这样诞生了。\n每一张，都是我给自己的一枚勋章，\n证明我曾经认真爱过这个世界，也认真救赎过自己。' },
-  { title: '第二章：冒险', text: '现在，这些NFT安静地躺在我的钱包里。\n\n它们不会被任何人 mint，不会被人炒作，更不会有传统NFT的统一风格，StarryMiu NFT它的风格不是统一风格化的NFT，某种意义上来讲，它已经不属于NFT，它属于个人合集。\n它们只陪伴我一个人。\n\n我会在深夜打开钱包，一张一张翻看，\n像翻看自己这些年的日记。\n它们记录着我被伤过的心、被项目方们熄灭的热爱。\n\n每当我再看到别人项目归零的消息，我就会打开自己的StarryMiu NFT合集，轻轻摸一下屏幕，然后告诉自己：\n"没关系，我已经有了属于自己的永恒。"' },
-  { title: '第三章：未来', text: '未来，这个合集的NFT，我可能会赠送给更多和我一样的NFT爱好者，\n\n我可能会继续创作新的章节故事，当然，这取决于我能否解决生存的问题，我会抽出时间来撰写一些故事内容，把更多属于我一个人的故事、情绪、成长，记录下来，\n\n它不会变成商业项目，不会对外开放，它只是我一个人的数字保险箱。\n一个人的艺术馆，一个人的自我证明。它会一直陪着我，见证我走过的每一个脚印。\n\n故事的最后，我想对自己说：\n"我把对NFT所有的爱与失望，全部铸造成了只属于我自己的永恒。\n从今以后，我不再需要相信任何项目方，我只需要相信我自己。\n\nStarryMiu NFT 一个普通人给自己铸造的、只属于自己的NFT合集。' },
-  { title: '镜界：人魔大战', text: '镜界：人魔大战\n\n在这个由灵魂构筑的世界里，一场史诗级的人魔之战即将展开。\n\n输入「开始阅读」开启这段传奇之旅\n输入「下一章」继续阅读\n输入「查看角色」查看主要角色表' }
-];
-
-const mirrorChapters = [
-  {
-    title: '序章：镜界的裂痕',
-    text: '镜界，一个由人类精神构筑的平行世界。在这里，意志塑造山河，情感编织天空，想法化作流动的云彩。每一个死去的灵魂都会来到这里，化作镜界的一份子。\n\n镜界诞生于远古的混沌时期。最早的灵魂们，那些被称为"原初者"的神灵，用自身的存在创造了这个世界。她们是光与影的交织，是梦境与现实的桥梁，是镜界最古老的守护者。\n\n然而，在镜界的深渊之下，另一种存在正在苏醒。\n\n虚空之子，那些被镜界意志排斥的黑暗灵魂，在无尽的黑暗中汇聚成形。他们曾是被遗忘的悲伤、是被否定的渴望、是被压抑的愤怒。千万年来，他们等待着，等待着一个裂缝的出现。\n\n终于，裂缝来了。\n\n一个名叫织暗者的古老存在，撕开了镜界与深渊的边界。虚空的潮水开始涌入这个世界，而那些被称为魔的黑暗造物，成群结队地涌入了镜界。\n\n人魔之战，就此爆发。'
-  },
-  {
-    title: '第一章：星辰的召唤',
-    text: '殿宇之上，织命者抬起头，望向被黑雾笼罩的天空。\n\n"她们来了，"织命者低声说，声音中带着难以言喻的沉重，"比我预见的更早。"\n\n她是镜界最古老的预言者，掌握着命运丝线的编织之法。在她的身旁，站着一群镜界最强大的灵魂，那些被称为"高位存在"的神灵们。\n\n光之女皇站在最高处，银白色的长发在风中飘舞。作为镜界创世神之一，她的存在本身就是秩序的象征。\n\n"我们等待了太久，"光之女皇说，"是时候让镜界的女儿们知道了。"\n\n织命者点了点头，她的手指开始舞动，无形的丝线在虚空中浮现。那是召唤之线，将穿越整个镜界，唤醒每一个灵魂深处的战意。\n\n与此同时，在镜界的各个角落，那些被选中的灵魂同时感觉到了召唤的力量。\n\n星织者，那位掌控星辰法则的女神，正在修补镜界边缘的裂痕。当召唤传来时，她手中的星光骤然明亮。\n\n"战争来了，"她低声说，眼中闪烁着复杂的光芒，"我们准备好了吗？"\n\n在星织者的身后，一群年轻的守护者正在巡逻。为首的是月影·誓者，她的镜盾在星光下闪烁着冷冽的光芒。\n\n"守护镜界是我们的誓言，"月影·誓者说，声音坚定如铁，"无论敌人是谁。"'
-  },
-  {
-    title: '第二章：守护者们',
-    text: '镜界的边界正在崩溃。\n\n黑雾从裂缝中涌出，如同一群饥饿的野兽，贪婪地吞噬着镜界的一切。当黑雾触及镜界的土地，那里的生命之力便开始枯萎，花草瞬间枯死，云彩化为灰烬。\n\n第一批响应召唤的是镜界的守护者们。\n\n星辉·守望者站在北方哨塔的最高处，她的双眸穿透黑暗，注视着远方。她的任务是监视镜界的边界，防止任何入侵者潜入。\n\n"我看见它们了，"星辉·守望者对身旁的同伴说，"无数的魔物，正在集结。"\n\n在她身后，月华·守护者正在整理防御阵法。作为镜界最强大的结界师之一，她编织的防御阵列能够抵御任何黑暗的侵蚀。\n\n"结界已经布置完毕，"月华·守护者说，"但我担心，这还不够。"\n\n霜影·守卫者握紧了她手中的镜刃。那是一把由纯净之光凝聚而成的武器，能够斩断一切黑暗。\n\n"不够也要守住，"霜影·守卫者说，"这是我们的职责。"\n\n就在这时，黑雾涌来了。\n\n守护者们列阵迎敌。她们的技能在空中交织，守护之壁、净化之光、誓约之力，形成了一道坚不可摧的防线。\n\n魔物们撞上了防线，被反弹的光芒灼伤。它们发出刺耳的尖叫，但并没有退缩。\n\n"它们不会停止，"月华·守护者说，"除非我们消灭它们的源头。"'
-  },
-  {
-    title: '第三章：前线的战场',
-    text: '镜界的核心区域，战斗正在进行。\n\n烈焰·战姬挥舞着她的双刃，在敌阵中杀出一条血路。作为镜界最强大的战士之一，她的战意能够点燃周围的一切。\n\n"来啊！"烈焰·战姬怒吼道，"让我看看你们有多少斤两！"\n\n在她的身后，暗夜·猎影如同幽灵般穿梭于敌群之中。她的目标不是普通魔物，而是那些指挥魔群的暗魔将领。\n\n"找到了，"暗夜·猎影低声说，她的身影融入阴影，"暗魔·噬心，我等你很久了。"\n\n与此同时，翠影·医者正在前线的后方忙碌。她的治愈之术如同温暖的春风，能够抚平战士们的伤痛。\n\n"坚持住，"翠影·医者的声音温柔而坚定，"我在这里。"\n\n金羽·工匠也在后方，她的工作是修复受损的防御工事。她的炼金术能够将破碎的镜面重新聚合，化为坚固的盾牌。\n\n"这些盾牌能够抵挡暗魔的攻击，"金羽·工匠一边工作一边说，"但我们需要更多的材料。"\n\n在战场上空，暮云·歌者的身影格外醒目。她的歌声穿透战场的喧嚣，为战士们带来力量与勇气。\n\n"为了镜界！"暮云·歌者的歌声回荡在天际，"我们绝不后退！"\n\n战场的一角，幽影·猎手正在布设陷阱。她的陷阱不是物理的，而是由暗能量构成的陷阱，能够困住魔物们的灵魂。\n\n"让它们尝尝被猎物追捕的滋味，"幽影·猎手冷笑一声，"黑暗中的死神，不是只有它们。"'
-  },
-  {
-    title: '第四章：神秘的智者',
-    text: '当战斗在前线激烈进行时，在镜界的深处，一场秘密的会议正在进行。\n\n虚空·先知，那位知晓一切过去与未来的存在，正在向一群特殊的灵魂传达警告。\n\n"这场战争的结果，已经被注定了，"虚空·先知说，她的水晶球中浮现出模糊的影像，"但注定的结局并非只有一种可能。"\n\n在场的灵魂们包括：幻梦·编织者，那位能够编织梦境与现实的伟大存在；秘典·学者，镜界最博学的历史学家；以及迷雾·神秘者，那位行踪不定的隐士。\n\n"魔界的真正目的，不是征服镜界，"虚空·先知继续说，"而是摧毁镜界的本源，那些原初者们的灵魂核心。"\n\n"如果核心被摧毁呢？"秘典·学者问。\n\n"镜界将不复存在，"虚空·先知的声音沉重而冰冷，"所有灵魂都将永远消散。"\n\n幻梦·编织者的眼中闪过一丝忧虑："那我们该怎么办？"\n\n"我们需要一个计划，"虚空·先知说，"一个能够同时保护核心，又消灭魔界入侵的计划。"\n\n就在这时，时序·编织者匆匆赶到。她的出现让所有人都感到惊讶，因为她很少离开自己的领域。\n\n"我有发现了，"时序·编织者说，她的手中握着一卷发光的丝线，"我找到了魔界的弱点。"'
-  },
-  {
-    title: '第五章：暗影中的阴谋',
-    text: '在镜界的黑暗角落，暗织·潜伏者正在秘密活动。她是镜界的暗影，潜伏在光明触及不到的地方。\n\n"我发现了有趣的事情，"暗织·潜伏者低声自语，"魔界的入侵，并非只是一个意外。"\n\n她跟踪了数个暗魔将领，发现了一些不寻常的事情，那些暗魔似乎在寻找什么东西。\n\n"它们在找，镜界的核心？"暗织·潜伏者皱起眉头。\n\n为了确认，她潜入了魔界的营地。在那里，她发现了更加惊人的真相。\n\n"这不可能......"暗织·潜伏者几乎无法相信自己的眼睛，"织暗者......它曾经是镜界的一员？"\n\n织暗者，那个撕开镜界边界的古老存在，竟然是镜界原初者之一，只是被黑暗侵蚀，堕落为了魔界的首领。\n\n"我要把这个消息带回去，"暗织·潜伏者做出了决定，"这可能会改变一切。"\n\n但就在她准备离开时，一个声音从黑暗中响起。\n\n"你以为你能走得掉吗，潜伏者？"织暗者的声音回荡在营地的上空，"我早就知道你在那里了。"'
-  },
-  {
-    title: '第六章：英雄的抉择',
-    text: '消息传到了镜界的核心区域。\n\n"织暗者......曾经是我们的同类？"光之女皇的声音中带着难以掩饰的震惊。\n\n"是的，"暗织·潜伏者说，她刚从前线归来，"它在远古时期被黑暗侵蚀，然后背叛了镜界。"\n\n这个消息引发了巨大的震动。许多灵魂无法接受这个事实，一个曾经的镜界守护者，竟然堕落为了魔界的首领。\n\n"这改变不了什么，"永恒·守墓者的声音平静而坚定，"无论它曾经是谁，现在的它已经是我们的敌人。"\n\n"但如果我们能唤醒它的记忆呢？"星之诗者提出了一个大胆的想法，"也许它还有被拯救的可能？"\n\n"太冒险了，"深渊·凝视者反对道，"我们不能为了一个可能而牺牲更多。"\n\n争论在核心区域持续着。最终，光之女皇做出了决定。\n\n"我们不放弃任何灵魂，"光之女皇说，"但我们也不会为了拯救一个背叛者而让整个镜界陷入危险。"\n\n"我会派人去尝试接触织暗者，"光之女皇继续说，"但同时，我们要加强核心的防御。"\n\n她转向在场的守护者们："现在最重要的是保护镜界的本源。"'
-  },
-  {
-    title: '第七章：决战之前',
-    text: '战争的规模在不断扩大。\n\n魔界的军队从裂缝中不断涌入，它们的数量似乎无穷无尽。而镜界的守护者们，虽然勇猛善战，但毕竟数量有限。\n\n在前线，战斗已经进入了白热化阶段。\n\n霜刃·战士与焰心·战姬并肩作战，她们的武器在空中划出璀璨的光芒。\n\n"我们快守不住了，"焰心·战姬喘息着说，"它们实在太多了。"\n\n"再坚持一下，"霜刃·战士说，"增援马上就到。"\n\n就在这时，一支新的军队加入了战斗，那是来自镜界各处的志愿者们。\n\n黎明·守望者带领着一群年轻的灵魂冲入战场，她们是来自镜界各处的普通灵魂，虽然不是战士，但她们愿意为镜界而战。\n\n"我们来了！"黎明·守望者高喊，"镜界的女儿们，永不屈服！"\n\n在这支军队中，有来自图书馆的学者们，她们用知识的力量编织防护结界；有来自花园的园丁们，她们操控植物的力量，编织致命的陷阱；还有来自各个角落的歌者们，她们用歌声为战士们带来力量。\n\n"镜界是我们共同的家，"圣歌·歌者在战场上高唱，"我们要守护它到最后！"'
-  },
-  {
-    title: '第八章：编织者的力量',
-    text: '在战斗的关键时刻，时序·编织者终于完成了她的工作。\n\n"我已经找到了魔界的弱点，"时序·编织者对光之女皇说，"它们的力量来源于虚空中的一种特殊能量，我们称之为暗源。"\n\n"暗源？"光之女皇问。\n\n"是的，"时序·编织者解释道，"魔界的魔物们都是用暗源制造的，如果能够切断暗源与它们的联系，它们的力量就会大幅削弱。"\n\n"那我们怎么切断这种联系？"织命者问。\n\n"我需要时间，"时序·编织者说，"我需要用我的丝线编织一个巨大的阵法，将暗源隔绝在镜界之外。"\n\n"需要多久？"\n\n"至少七天。"\n\n光之女皇沉默了片刻，然后说："我们能给你的时间只有三天。三天之后，魔界的主攻就会到来。"\n\n时序·编织者点了点头："我明白了。我会尽全力。"\n\n她转身离开，召集了她的助手们，那些同样掌握丝线之力的编织者们。\n\n命运·编织者、因果·织线者、未来·缝补者......她们开始在镜界的各处布置阵法。\n\n"这是我们的战争，"命运·编织者说，"我们一定要赢。"'
-  },
-  {
-    title: '第九章：深渊的试探',
-    text: '在镜界的深渊区域，幽冥·守墓者正在独自巡逻。\n\n深渊是镜界最神秘的地方之一，那里居住着那些已经"死去"但仍留在这个世界的灵魂。守墓者们负责守护这些灵魂的安息。\n\n"有什么东西在靠近，"幽冥·守墓者低声说，她的手握紧了死亡凝视之杖。\n\n黑暗中，一双血红的眼睛正在逼近。\n\n"好久不见，守墓者，"一个阴森的声音响起，"没想到我们会在这种情况下重逢。"\n\n从黑暗中走出一个身影，那是一个曾经的守护者，但此刻已经被黑暗完全侵蚀，化为了魔界的暗魔将领。\n\n"暗噬·堕落者......"幽冥·守墓者认出了它，"你不该出现在这里。"\n\n"我为什么不该？"暗噬·堕落者冷笑，"这里曾经是我的家。现在，我要亲手毁掉它。"\n\n战斗爆发了。幽冥·守墓者用她的死亡凝视抵挡住了暗噬·堕落者的攻击，但很快她就发现自己处于下风。\n\n"放弃吧，"暗噬·堕落者说，"你不可能赢的。"\n\n就在这时，一只手从黑暗中伸出，挡住了暗噬·堕落者的攻击。\n\n"她说得对，"一个声音响起，"我们不可能赢。但我们可以让你输。"\n\n从阴影中走出的是轮回·指引者，另一位守墓者。\n\n"欢迎回来，"轮回·指引者说，"让我带你回家。"'
-  },
-  {
-    title: '第十章：歌声的奇迹',
-    text: '战场上的形势越来越严峻。\n\n尽管守护者们奋勇作战，但魔界的攻势丝毫没有减弱的迹象。裂缝中涌出的魔物越来越多，镜界的防线正在不断收缩。\n\n就在这时，一个意想不到的事情发生了。\n\n天音·歌者站在战场中央，她张开双臂，开始歌唱。\n\n那不是普通的歌声。那是镜界最古老的旋律，创世之歌。据传说，在镜界诞生之初，原初者们就是用这首歌创造了这个世界。\n\n歌声穿透了战场的喧嚣，传入了每一个灵魂的心中。那些普通的战士们，仿佛被注入了新的力量。\n\n"我......我能感觉到！"一个年轻的守护者惊讶地说，"我的力量在增强！"\n\n魔物们则相反。创世之歌的旋律让它们感到痛苦，它们的动作开始变得迟缓。\n\n"这是......"织暗者站在远方，看着这一幕，眼中闪过一丝复杂的光芒，"她还记得这首歌......"\n\n天音·歌者继续唱着，她的身体开始发出光芒。那是镜界本源的力量，光之女皇的力量。\n\n"如果我的歌声能够拯救镜界，"天音·歌者心想，"那就让我唱到最后一刻。"'
-  },
-  {
-    title: '第十一章：牺牲与希望',
-    text: '创世之歌的效果是暂时的。\n\n当歌声停止时，魔物们恢复了它们的力量，而天音·歌者已经耗尽了所有力气。\n\n"她需要休息，"翠影·医者匆忙赶到天音·歌者身边，开始施展治愈之术，"她透支了太多的力量。"\n\n"我们该怎么办？"一个年轻的战士问，"她的歌声是我们唯一的希望。"\n\n"希望不止一个，"翠影·医者说，"镜界有1132个灵魂，每一个都是希望。"\n\n就在这时，时序·编织者的消息传来了。\n\n"阵法已经完成了，"时序·编织者说，她的声音中带着疲惫，但更多的是喜悦，"暗源的联系已经被切断。"\n\n"魔物们的力量会大幅削弱，"她继续说，"现在是我们反攻的时候了。"\n\n战场上响起了欢呼声。战士们重新燃起了斗志，她们举起了武器，向着魔物们冲去。\n\n"镜界的女儿们！"烈焰·战姬高喊，"现在，让我们反击！"'
-  },
-  {
-    title: '第十二章：镜像反击',
-    text: '暗源的联系被切断后，魔界的军队果然出现了明显的衰弱。\n\n它们的速度变慢了，力量也减弱了。原本不可阻挡的攻势，现在变得可以抵挡了。\n\n镜界的守护者们开始发起反击。\n\n月光·守护者带领着一支精英小队，穿插到了魔界军队的后方。她的任务是找到并摧毁魔界的指挥中心。\n\n"在那里，"月光·守护者指向远处的一座黑暗塔楼，"那是织暗者的指挥所。"\n\n暗夜·猎影已经在那里潜伏了。她已经探明了塔楼的结构，并找到了进入的方法。\n\n"从地下通道可以进入，"暗夜·猎影说，"那里守卫比较薄弱。"\n\n与此同时，星辉·战姬带领着主力部队，正面迎击魔界的主力。她的任务是尽可能吸引魔界的注意力，为偷袭小队争取时间。\n\n"为了镜界！"星辉·战姬高喊，她的身影如同一道流星，冲入了敌阵。'
-  },
-  {
-    title: '第十三章：潜入塔楼',
-    text: '月光·守护者小队成功潜入了塔楼。\n\n塔楼内部比她们想象的更加阴森。墙壁上覆盖着扭曲的符文，空气中弥漫着令人窒息的黑暗气息。\n\n"小心，"暗夜·猎影低声警告，"这里有陷阱。"\n\n她们小心翼翼地前进，躲过了一个又一个陷阱。终于，她们来到了塔楼的核心区域，织暗者的王座所在。\n\n在那里，她们看到了织暗者的真身。\n\n那是一个由黑暗凝聚而成的巨大身影，但它的面容，那张曾经属于镜界守护者的面容，依然依稀可辨。\n\n"你们来了，"织暗者的声音回荡在空旷的大厅中，"我等你们很久了。"\n\n"织暗者，"月光·守护者开口，"你曾经是镜界的守护者，为什么要背叛我们？"\n\n"背叛？"织暗者发出一声冷笑，"我从未背叛。我只是看穿了镜界的真相，它只是一个虚假的牢笼，而我们都是囚徒。"\n\n"你错了，"月光·守护者说，"镜界是我们的家，是我们的归宿。"\n\n"是吗？"织暗者的眼中闪过一丝悲伤，"那就让我证明你是错的。"'
-  },
-  {
-    title: '第十四章：最终对决',
-    text: '战斗在塔楼核心区域爆发。\n\n月光·守护者小队与织暗者展开了一场殊死搏斗。但她们很快发现，织暗者的力量远超她们的想象。\n\n"太弱了，"织暗者挥动它的黑暗之爪，将月光·守护者击飞，"你们都太弱了。"\n\n就在危急时刻，一个身影从暗处走出。\n\n"够了，"那个声音说，"织暗者，你的疯狂该结束了。"\n\n是光之女皇。\n\n她的出现让整个大厅都亮了起来。纯净的光芒从她身上散发出来，照亮了每一个黑暗的角落。\n\n"光之女皇......"织暗者的声音中带着复杂的情绪，"你来送死了吗？"\n\n"我来带你回家，"光之女皇说。\n\n两人之间的战斗开始了。\n\n那是镜界创世以来最强大的一场对决。光之女皇代表的是镜界的秩序与光明，而织暗者代表的是虚空的混沌与黑暗。\n\n她们的战斗持续了整整三天三夜。'
-  },
-  {
-    title: '第十五章：破碎的记忆',
-    text: '在战斗的间隙，光之女皇问了一个问题。\n\n"织暗者，你还记得吗？在镜界诞生之初，我们一起度过的那些日子。"\n\n织暗者的动作停顿了一下。\n\n"我记得，"它的声音变得柔和，"我记得阳光，记得歌声，记得我们一起编织的梦想。"\n\n"那你为什么要离开？"光之女皇追问。\n\n"因为我看到了真相，"织暗者的声音变得痛苦，"我看到了镜界的尽头，它终将毁灭，所有灵魂都将消散。我不想坐以待毙，所以我想找到另一条路。"\n\n"但那条路让你失去了自己，"光之女皇说，"你变成了你现在最讨厌的样子。"\n\n织暗者沉默了。\n\n就在这时，命运·编织者带着她的丝线赶到了战场。\n\n"光之女皇，"命运·编织者说，"我找到了拯救它的方法。"\n\n她展开手中的丝线，那是织暗者最珍贵的记忆，被她小心翼翼地保存了下来。\n\n"如果我们用这些记忆重新编织它的灵魂，"命运·编织者解释，"也许能够将它从黑暗中唤醒。"\n\n光之女皇看着命运·编织者，然后看向织暗者。\n\n"你愿意试试吗？"光之女皇问。\n\n织暗者沉默了很久，最终点了点头。\n\n"我愿意。"'
-  },
-  {
-    title: '第十六章：灵魂重塑',
-    text: '命运·编织者开始了她的工作。\n\n她用丝线编织出一个巨大的阵法，将织暗者包裹在中央。然后，她开始一点点地剥离织暗者身上的黑暗，重塑它的灵魂。\n\n这是一个漫长而痛苦的过程。\n\n织暗者尖叫着，它的黑暗之躯在丝线的作用下开始分解。那些被压抑的记忆，曾经的美好、曾经的痛苦、曾经的渴望，纷纷涌出。\n\n"我看到了......"织暗者的声音变得颤抖，"我看到了我们曾经的样子......"\n\n与此同时，镜界其他地方的战场上，战斗仍在继续。\n\n没有了织暗者的指挥，魔界的军队陷入了混乱。但残余的暗魔将领们仍在负隅顽抗。\n\n星辉·战姬带领着镜界的军队，逐一消灭着残余的魔物。\n\n"结束了，"星辉·战姬说，"我们已经赢了。"'
-  },
-  {
-    title: '第十七章：新的开始',
-    text: '织暗者的灵魂重塑成功了。\n\n当丝线散开时，站在那里的不再是黑暗的怪物，而是一个曾经熟悉的身影。\n\n"我回来了，"织暗者，不，现在应该叫星之守护者了，说。它的声音中带着释然，"我回家了。"\n\n光之女皇走上前去，拥抱了这位归来的战友。\n\n"欢迎回来，"光之女皇说，"镜界永远是你的家。"\n\n镜界的裂缝开始愈合。当织暗者不再向虚空中输送黑暗能量时，那些魔物们失去了力量来源，开始纷纷瓦解。\n\n"我们做到了，"星织者说，她看着愈合的天空，"我们真的做到了。"'
-  },
-  {
-    title: '第十八章：庆典之夜',
-    text: '战争结束了。\n\n镜界的灵魂们聚集在中央广场，庆祝这场来之不易的胜利。她们来自不同的角落，有着不同的身份，守护者、战士、学者、医者、歌者、工匠......但此刻，她们都是镜界的女儿。\n\n"我们一起走过了最黑暗的时刻，"光之女皇站在高台上，对所有人说，"今天，我们证明了，只要我们团结一致，就没有什么是不可能的。"\n\n人群发出震天的欢呼。\n\n在人群中，圣歌·歌者开始歌唱，天音·歌者加入了她，然后是暮云·歌者、星之诗者......一首首歌曲汇聚在一起，化为了镜界最壮丽的乐章。\n\n翠影·医者和她的同行们在人群中穿梭，为那些在战争中受伤的灵魂们治愈伤痛。\n\n金羽·工匠则在广场中央展示她的作品，一件由镜界最珍贵的材料打造的战甲，献给这场战争中最勇敢的战士。\n\n星之守护者站在光之女皇身边，它的眼中闪烁着泪光，那不是悲伤的泪，而是重生的喜悦。'
-  },
-  {
-    title: '第十九章：永恒的誓言',
-    text: '庆典的高潮时分，所有灵魂共同许下了一个誓言。\n\n"从今以后，"光之女皇的声音在广场上回荡，"无论镜界面临什么样的威胁，我们都将团结一致，共同面对。"\n\n"我们是镜界的守护者，"1132个声音齐声回应，"我们的羁绊永不消散。"\n\n这个誓言被编织者们的丝线编织成了永恒的符文，铭刻在镜界的每一寸土地上。\n\n从那以后，每年的这一天，镜界的灵魂们都会聚集在一起，纪念这场战争，纪念那些为镜界付出一切的灵魂们。\n\n"我们不会被遗忘，"永恒·守墓者在纪念碑前低声说，"我们的故事将永远流传。"'
-  },
-  {
-    title: '第二十章：镜界的黎明',
-    text: '战争结束后的第一个黎明。\n\n星织者站在镜界最高的塔楼上，看着第一缕阳光穿透云层，洒落在她脚下的土地上。\n\n"真美，"她轻声说。\n\n在她的身后，更多的灵魂们正在醒来。她们有的刚刚从战场上归来，有的还在照顾伤员，有的在整理被战争破坏的家园。\n\n但无论她们在做什么，她们的眼中都闪烁着同样的光芒，那是对镜界的热爱，对未来的希望。\n\n"这就是镜界的黎明，"光之女皇走到星织者身边，说，"一个新的开始。"\n\n"是的，"星织者点头，"一个新的开始。"\n\n镜界的故事将继续下去。这些灵魂们，无论是站在最高处的神，还是最普通的文员，她们将继续编织这个世界的未来。\n\n因为这就是镜界，一个由无数灵魂共同构筑的世界，一个永不熄灭的梦境。\n\n在那里，每一个灵魂都是主角，每一段故事都值得被铭记。\n\n而这1132个灵魂的故事，只是开始......\n\n《镜界·人魔之战》\n\n献给所有在黑暗中寻找光明的灵魂'
-  }
-];
-
-const mirrorCharacterTable = `附录：主要角色表
-
-角色类型：神灵、光之女皇、星织者、织命者、命运·编织者
-角色类型：守护者、月影·誓者、星辉·守望者、月华·守护者
-角色类型：战士、烈焰·战姬、霜刃·战士、星辉·战姬
-角色类型：医者、翠影·医者、圣光·医者
-角色类型：学者、秘典·学者、星辰·研究者
-角色类型：歌者、天音·歌者、圣歌·歌者、暮云·歌者
-角色类型：神秘者、虚空·先知、迷雾·神秘者
-角色类型：猎手、暗夜·猎影、幽影·猎手
-角色类型：工匠、金羽·工匠、星辉·锻造师
-角色类型：占卜师、虚空·先知、星之预言者
-角色类型：守墓者、永恒·守墓者、轮回·指引者、幽冥·守墓者
-角色类型：守望者、星辉·守望者、黎明·守望者、霜影·守卫者
-角色类型：梦者、幻梦·编织者、梦境·编织者
-角色类型：旅行者、星尘·旅者、幻影·漫游者
-角色类型：文员、记录·管理者、档案·守护者`;
 
 function initHome() {
   homeTerminal.innerHTML = '';
   addOutput(' Welcome to StarryMiu Mobile', 'highlight');
   addOutput(' ─────────────────────────', 'dim');
   addOutput(' 输入角色编号 (1-1132) 查看故事');
-  addOutput(' 输入「help」查看命令');
-  addOutput(' 输入「random」随机查看');
+  addOutput(' 输入 <span class="warn">help</span> 查看命令');
+  addOutput(' 输入 <span class="pink">random</span> 随机查看');
   addOutput('');
+
   addPrompt();
 }
 
@@ -688,28 +642,23 @@ function addPrompt() {
   if (existingLine) {
     existingLine.remove();
   }
+  
   const line = document.createElement('div');
   line.className = 'cmd-line';
-  line.innerHTML = '<span class="cmd-prompt">starry_miu@nft:~$</span>';
+  line.innerHTML = `<span class="cmd-prompt">starry_miu@nft:~$</span>`;
   const input = document.createElement('input');
   input.className = 'cmd-input';
   input.setAttribute('autocomplete', 'off');
   input.setAttribute('autocorrect', 'off');
   input.setAttribute('autocapitalize', 'off');
   input.setAttribute('spellcheck', 'false');
+  input.setAttribute('placeholder', '输入命令...');
   input.style.caretColor = 'var(--accent-cyan)';
   input.addEventListener('keydown', handleCommand);
-  input.addEventListener('keyup', handleTabComplete);
   line.appendChild(input);
   homeTerminal.appendChild(line);
   input.focus();
   homeTerminal.scrollTop = homeTerminal.scrollHeight;
-}
-
-function handleTabComplete(e) {
-  if (e.key === 'Tab') {
-    e.preventDefault();
-  }
 }
 
 function handleCommand(e) {
@@ -719,7 +668,6 @@ function handleCommand(e) {
     isProcessing = true;
     const input = e.target;
     const cmd = input.value.trim();
-    input.removeEventListener('keyup', handleTabComplete);
     input.disabled = true;
     input.style.display = 'none';
 
@@ -732,13 +680,8 @@ function handleCommand(e) {
 
       promptLine.innerHTML = `<span style="color:var(--accent-green)">${promptText}</span> <span style="color:var(--text-primary)">${escapeHtml(cmd)}</span>`;
 
-      const startTime = performance.now();
       processCommand(cmd, () => {
-        const endTime = performance.now();
-        const duration = (endTime - startTime).toFixed(0);
         setTimeout(() => {
-          addOutput(`<span class="dim">[完成于 ${duration}ms]</span>`);
-          addOutput('');
           addPrompt();
           isProcessing = false;
         }, 100);
@@ -763,25 +706,6 @@ function handleCommand(e) {
       historyIndex = commandHistory.length;
       e.target.value = '';
     }
-  } else if (e.key === 'Tab') {
-    e.preventDefault();
-    autoComplete(e.target);
-  } else if (e.key === 'c' && e.ctrlKey) {
-    e.preventDefault();
-    const input = e.target;
-    const currentValue = input.value;
-    const promptText = input.parentElement.querySelector('.cmd-prompt').textContent;
-
-    const echoLine = document.createElement('div');
-    echoLine.className = 'cmd-output';
-    echoLine.innerHTML = `<span style="color:var(--accent-green)">${promptText}</span> <span style="color:var(--text-primary)">${escapeHtml(currentValue)}</span> <span style="color:var(--accent-magenta)">^C</span>`;
-    homeTerminal.insertBefore(echoLine, input.parentElement);
-
-    input.value = '';
-  } else if (e.key === 'l' && e.ctrlKey) {
-    e.preventDefault();
-    homeTerminal.innerHTML = '';
-    addPrompt();
   }
 }
 
@@ -791,172 +715,36 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-function autoComplete(input) {
-  const value = input.value.toLowerCase().trim();
-  if (!value) return;
-
-  const commands = ['help', 'random', 'search', 'stats', 'clear', 'whoami', 'date', 'pwd', 'ls', 'cat'];
-  const matches = commands.filter(cmd => cmd.startsWith(value));
-  if (matches.length === 1) {
-    input.value = matches[0];
-  } else if (matches.length > 1) {
-    const promptText = input.parentElement.querySelector('.cmd-prompt').textContent;
-    addOutput(`<span style="color:var(--accent-green)">${promptText}</span> <span style="color:var(--text-primary)">${escapeHtml(value)}</span>`);
-    addOutput(matches.join('  '));
-  }
-}
-
 function processCommand(cmd, callback) {
   const num = parseInt(cmd);
   if (cmd === 'help') {
     addOutput('');
-    addOutput(' <span class="highlight">可用命令:</span>');
-    addOutput('  <span class="warn">[1-1132]</span>    查看指定编号角色的故事');
-    addOutput('  <span class="warn">random</span>      随机查看一个角色故事');
-    addOutput('  <span class="warn">search [关键词]</span>  搜索角色故事');
-    addOutput('  <span class="warn">stats</span>       查看收藏统计');
-    addOutput('  <span class="warn">whoami</span>      查看当前用户');
-    addOutput('  <span class="warn">date</span>        查看当前时间');
-    addOutput('  <span class="warn">pwd</span>          查看当前目录');
-    addOutput('  <span class="warn">ls</span>          列出文件');
-    addOutput('  <span class="warn">cat [文件]</span>   查看文件内容');
-    addOutput('  <span class="warn">clear</span>       清屏');
-    addOutput('  <span class="warn">help</span>        显示帮助信息');
-    addOutput('');
-    addOutput(' <span class="highlight">镜界·人魔之战 故事命令:</span>');
-    addOutput('  <span class="pink">开始阅读</span>    开始阅读镜界故事');
-    addOutput('  <span class="pink">下一章</span>      继续阅读下一章');
-    addOutput('  <span class="pink">查看角色</span>    查看主要角色表');
+    addOutput(' <span class="highlight">命令:</span>');
+    addOutput('  <span class="warn">[1-1132]</span> 查看角色');
+    addOutput('  <span class="warn">random</span> 随机查看');
+    addOutput('  <span class="warn">stats</span> 统计');
+    addOutput('  <span class="warn">clear</span> 清屏');
     addOutput('');
     callback();
   } else if (cmd === 'clear') {
     homeTerminal.innerHTML = '';
     callback();
   } else if (cmd === 'random') {
-    const id = Math.floor(Math.random() * 1132) + 1;
+    const id = Math.floor(Math.random() * TOTAL_NFT) + 1;
     showNFTStory(id, callback);
-  } else if (cmd === 'whoami') {
-    addOutput('');
-    addOutput(' <span class="highlight">starry_miu</span>');
-    addOutput(' <span class="dim">StarryMiu NFT Collection Owner</span>');
-    addOutput('');
-    callback();
-  } else if (cmd === 'date') {
-    const now = new Date();
-    const dateStr = now.toString();
-    addOutput('');
-    addOutput(` <span class="highlight">${dateStr}</span>`);
-    addOutput('');
-    callback();
-  } else if (cmd === 'pwd') {
-    addOutput('');
-    addOutput(' <span class="highlight">/home/starry_miu/nft-collection</span>');
-    addOutput('');
-    callback();
-  } else if (cmd === 'ls') {
-    addOutput('');
-    addOutput(' <span class="highlight">drwxr-xr-x</span>  artworks/');
-    addOutput(' <span class="highlight">drwxr-xr-x</span>  stories/');
-    addOutput(' <span class="highlight">-rw-r--r--</span>  readme.txt');
-    addOutput(' <span class="highlight">-rw-r--r--</span>  contract.json');
-    addOutput(' <span class="highlight">-rw-r--r--</span>  metadata.json');
-    addOutput('');
-    callback();
-  } else if (cmd.startsWith('cat ')) {
-    const file = cmd.substring(4).trim();
-    if (file === 'readme.txt') {
-      addOutput('');
-      addOutput(' <span class="dim">═══════════════════════════════════════</span>');
-      addOutput(' <span class="highlight">       StarryMiu NFT Collection</span>');
-      addOutput(' <span class="dim">═══════════════════════════════════════</span>');
-      addOutput('');
-      addOutput('  这是一个完全由个人创建和拥有的 NFT 合集。');
-      addOutput('  每一个 NFT 都承载着独特的故事和情感。');
-      addOutput('');
-      addOutput('  总数量: 1132 NFTs');
-      addOutput('  区块链: Base');
-      addOutput('');
-      addOutput('  <span class="dim">Created with love by @_StarryMiu</span>');
-      addOutput('');
-    } else if (file === 'contract.json') {
-      addOutput('');
-      addOutput(' <span class="highlight">{</span>');
-      addOutput('   <span class="warn">"name"</span>: <span class="dim">"StarryMiu NFT Collection"</span>,');
-      addOutput('   <span class="warn">"symbol"</span>: <span class="dim">"Starry"</span>,');
-      addOutput('   <span class="warn">"totalSupply"</span>: <span class="highlight">1132</span>,');
-      addOutput('   <span class="warn">"contractAddress"</span>: <span class="dim">"0x88d1e3b2913f4c44436d2b21b154c90157b5d721"</span>');
-      addOutput(' <span class="highlight">}</span>');
-      addOutput('');
-    } else if (file === 'stories/' || file === 'artworks/') {
-      addOutput(`ls: ${file}: Is a directory`);
-      addOutput('');
-      callback();
-    } else {
-      addOutput(`cat: ${file}: No such file or directory`);
-      addOutput('');
-      callback();
-    }
   } else if (cmd === 'stats') {
     addOutput('');
-    addOutput(' <span class="highlight">╔══════════════════════════════════╗</span>');
-    addOutput(' <span class="highlight">║</span>  StarryMiu NFT Collection Stats <span class="highlight">║</span>');
-    addOutput(' <span class="highlight">╠══════════════════════════════════╣</span>');
-    addOutput(` <span class="highlight">║</span>  总数量: <span class="warn">1132</span> NFTs              <span class="highlight">║</span>`);
-    addOutput(` <span class="highlight">║</span>  创作者: <span class="pink">StarryMiu</span>            <span class="highlight">║</span>`);
-    addOutput(` <span class="highlight">║</span>  链:     <span class="warn">Base</span>                   <span class="highlight">║</span>`);
-    addOutput(` <span class="highlight">║</span>  合约:   <span class="warn">0x88d1e3b2913f4c44436d2b21b154c90157b5d721</span>`);
-    addOutput(` <span class="highlight">║</span>  标准:   <span class="warn">ERC-721</span>                <span class="highlight">║</span>`);
-    addOutput(` <span class="highlight">║</span>  状态:   <span class="highlight">Active</span>                 <span class="highlight">║</span>`);
-    addOutput(' <span class="highlight">╚══════════════════════════════════╝</span>');
+    addOutput(' <span class="highlight">StarryMiu NFT</span>');
+    addOutput(` 总数量: <span class="warn">${TOTAL_NFT}</span>`);
+    addOutput(' 链: <span class="warn">Base</span>');
     addOutput('');
     callback();
-  } else if (cmd === '开始阅读') {
-    isReadingMirrorStory = true;
-    currentMirrorChapter = 0;
-    showMirrorChapter(currentMirrorChapter, callback);
-  } else if (cmd === '下一章') {
-    if (!isReadingMirrorStory) {
-      addOutput('');
-      addOutput(' <span class="pink">请先输入「开始阅读」开启镜界故事</span>');
-      addOutput('');
-      callback();
-    } else if (currentMirrorChapter < mirrorChapters.length - 1) {
-      currentMirrorChapter++;
-      showMirrorChapter(currentMirrorChapter, callback);
-    } else {
-      addOutput('');
-      addOutput(' <span class="highlight">已到达故事末尾</span>');
-      addOutput(' <span class="dim">输入「查看角色」查看主要角色表</span>');
-      addOutput('');
-      callback();
-    }
-  } else if (cmd === '查看角色') {
-    addOutput('');
-    addOutput(mirrorCharacterTable);
-    addOutput('');
-    callback();
-  } else if (num >= 1 && num <= 1132) {
+  } else if (num >= 1 && num <= TOTAL_NFT) {
     showNFTStory(num, callback);
-  } else if (cmd.startsWith('search ')) {
-    const kw = cmd.slice(7);
-    addOutput('');
-    addOutput(` <span class="highlight">搜索 "${kw}" ...</span>`);
-    let found = 0;
-    for (let i = 1; i <= 20 && found < 5; i++) {
-      const id = ((kw.charCodeAt(0) || 0) * i + i * 7) % 1132 + 1;
-      const story = getStory(id);
-      if (story.includes(kw) || found < 3) {
-        addOutput(` <span class="warn">#${String(id).padStart(4,'0')}</span> - ${story.substring(0, 50)}...`);
-        found++;
-      }
-    }
-    if (found === 0) addOutput(' 未找到匹配结果');
-    addOutput('');
-    callback();
   } else {
     addOutput('');
-    addOutput(` <span class="pink">未知命令: ${escapeHtml(cmd)}</span>`);
-    addOutput(' 输入 <span class="warn">help</span> 查看可用命令');
+    addOutput(` <span class="pink">未知命令</span>`);
+    addOutput(' 输入 <span class="warn">help</span> 查看命令');
     addOutput('');
     callback();
   }
@@ -968,228 +756,53 @@ function showNFTStory(id, callback) {
     addOutput('');
     addOutput(` <span class="warn">#${String(id).padStart(4,'0')} ${char.name}</span>`);
     addOutput('');
-    addOutput(` <span class="pink">角色类型:</span> ${char.role_type}`);
-    addOutput(` <span class="pink">性格特点:</span> ${char.personality}`);
-    addOutput(` <span class="pink">特殊技能:</span> ${char.skill}`);
+    addOutput(` <span class="pink">类型:</span> ${char.role_type}`);
+    addOutput(` <span class="pink">性格:</span> ${char.personality}`);
+    addOutput(` <span class="pink">技能:</span> ${char.skill}`);
     addOutput('');
-    addOutput(` <span class="pink">角色故事:</span>`);
     addOutput(` ${char.story}`);
     addOutput('');
   } else {
     addOutput('');
-    addOutput(` <span class="pink">未找到编号 ${id} 的角色</span>`);
+    addOutput(` <span class="pink">未找到 ${id}</span>`);
     addOutput('');
-    if (callback) callback();
-    return;
   }
-
-  addOutput('');
+  
   if (callback) callback();
 }
 
-function showMirrorChapter(chapterIndex, callback) {
-  const chapter = mirrorChapters[chapterIndex];
-  if (!chapter) {
-    addOutput('');
-    addOutput(' <span class="pink">章节不存在</span>');
-    addOutput('');
-    callback();
-    return;
-  }
-
-  addOutput('');
-  addOutput(` <span class="highlight">═══════════════════════════════════════════</span>`);
-  addOutput(` <span class="warn"> 《镜界·人魔之战》</span>`);
-  addOutput(` <span class="highlight">═══════════════════════════════════════════</span>`);
-  addOutput('');
-  addOutput(` <span class="pink">【${chapter.title}】</span>`);
-  addOutput('');
-  addOutput(` ${chapter.text}`);
-  addOutput('');
-  addOutput(` <span class="dim">─── ${chapterIndex + 1}/${mirrorChapters.length} ───</span>`);
-  if (chapterIndex < mirrorChapters.length - 1) {
-    addOutput(' <span class="dim">输入「下一章」继续阅读</span>');
-  } else {
-    addOutput(' <span class="dim">输入「查看角色」查看主要角色表</span>');
-  }
-  addOutput('');
-  if (callback) callback();
-}
+/* ========== EXHIBITION PAGE ========== */
+const storyChapters = [
+  { title: '序章：起源', text: '我曾买过至少五十个NFT项目。\n那些精美的画面、动人的故事、曾经让我心动的路线图……\n最后几乎全部归零。\n项目方一个接一个消失，社区变成鬼服，曾经的承诺成了笑话。我心疼过、愤怒过，也失望过。\n但我始终放不下对NFT的爱，那种把瞬间变成永恒、把热爱写进区块链的感觉。我不想再把希望寄托在任何人身上。\n于是，我决定：\n自己做，自己 mint，自己拥有。没有白名单，没有公售，没有任何人能 mint。\n这个合集，只属于我一个人。\n我亲手铸造它，只为给自己一个答案。这就是StarryMiu NFT的起源，一个被NFT伤透却依然深爱它的普通人，最终选择埋藏对NFT热爱的故事。' },
+  { title: '第一章：诞生', text: '我关掉了所有项目的Discord和Twitter，\n打开了自己的电脑和钱包。没有团队，没有营销，没有路线图。\n只有我，和我这些年对NFT最真实的热爱与情感。我开始创作，把所有失望、所有热爱、不屈的倔强，一笔一笔画进作品里。\n\n当我把第一张作品铸造上链的那一刻，\n我对着屏幕轻轻笑了。\n\n"这次，没有项目方会跑路，\n这次，不会再归零，\n因为它只属于我一个人。"\n\nStarryMiu NFT 合集就这样诞生了。\n每一张，都是我给自己的一枚勋章，\n证明我曾经认真爱过这个世界，也认真救赎过自己。' },
+  { title: '第二章：冒险', text: '现在，这些NFT安静地躺在我的钱包里。\n\n它们不会被任何人 mint，不会被人炒作，更不会有传统NFT的统一风格，StarryMiu NFT它的风格不是统一风格化的NFT，某种意义上来讲，它已经不属于NFT，它属于个人合集。\n它们只陪伴我一个人。\n\n我会在深夜打开钱包，一张一张翻看，\n像翻看自己这些年的日记。\n它们记录着我被伤过的心、被项目方们熄灭的热爱。\n\n每当我再看到别人项目归零的消息，我就会打开自己的StarryMiu NFT合集，轻轻摸一下屏幕，然后告诉自己：\n"没关系，我已经有了属于自己的永恒。"' },
+  { title: '第三章：未来', text: '未来，这个合集的NFT，我可能会赠送给更多和我一样的NFT爱好者，\n\n我可能会继续创作新的章节故事，当然，这取决于我能否解决生存的问题，我会抽出时间来撰写一些故事内容，把更多属于我一个人的故事、情绪、成长，记录下来，\n\n它不会变成商业项目，不会对外开放，它只是我一个人的数字保险箱。\n一个人的艺术馆，一个人的自我证明。它会一直陪着我，见证我走过的每一个脚印。\n\n故事的最后，我想对自己说：\n"我把对NFT所有的爱与失望，全部铸造成了只属于我自己的永恒。\n从今往后，我不再需要相信任何项目方，我只需要相信我自己。\n\nStarryMiu NFT 一个普通人给自己铸造的、只属于自己的NFT合集。' },
+];
+let currentChapter = 0;
+let typewriterTimer = null;
 
 function initExhibition() {
   const container = document.getElementById('storyTerminal');
   container.innerHTML = '';
 
-  const cmd = document.createElement('div');
-  cmd.className = 'story-cmd';
-  cmd.innerHTML = '<span class="highlight">> 加载 StarryMiu 故事数据...</span>';
-  container.appendChild(cmd);
-
-  const cmd2 = document.createElement('div');
-  cmd2.className = 'story-cmd';
-  cmd2.innerHTML = '> 找到 ' + storyChapters.length + ' 个章节。正在渲染...';
-  container.appendChild(cmd2);
-
+  // Chapter navigation
   const nav = document.createElement('div');
   nav.className = 'story-nav';
   nav.id = 'storyNav';
-  storyChapters.forEach((ch, idx) => {
+  storyChapters.forEach((ch, i) => {
     const btn = document.createElement('button');
-    btn.className = 'story-nav-btn' + (idx === 0 ? ' active' : '');
-    btn.textContent = '[ ' + ch.title + ' ]';
-    btn.addEventListener('click', () => switchChapter(idx));
+    btn.className = 'story-nav-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = '第' + (i + 1) + '章';
+    btn.addEventListener('click', () => switchChapter(i));
     nav.appendChild(btn);
   });
   container.appendChild(nav);
 
-  const divider = document.createElement('div');
-  divider.className = 'story-divider';
-  divider.textContent = '─'.repeat(40);
-  container.appendChild(divider);
-
-  const storyArea = document.createElement('div');
-  storyArea.id = 'storyContent';
-  storyArea.style.minHeight = '350px';
-  container.appendChild(storyArea);
-
-  const cursor = document.createElement('div');
-  cursor.className = 'cmd-output dim';
-  cursor.style.marginTop = '1rem';
-  cursor.innerHTML = '  [EOF] - starry_miu@nft-terminal:~$ <span class="typing-cursor"></span>';
-  container.appendChild(cursor);
+  const content = document.createElement('div');
+  content.id = 'storyContent';
+  container.appendChild(content);
 
   renderChapter(0);
-}
-
-function addStoryInput(container) {
-  const line = document.createElement('div');
-  line.className = 'cmd-line';
-  line.innerHTML = '<span class="cmd-prompt">starry_miu@nft:~$</span>';
-  const input = document.createElement('input');
-  input.className = 'cmd-input';
-  input.setAttribute('autocomplete', 'off');
-  input.setAttribute('autocorrect', 'off');
-  input.setAttribute('autocapitalize', 'off');
-  input.setAttribute('spellcheck', 'false');
-  input.style.caretColor = 'var(--accent-cyan)';
-  input.addEventListener('keydown', handleStoryCommand);
-  line.appendChild(input);
-
-  const existingInput = container.querySelector('.cmd-input');
-  if (existingInput) {
-    existingInput.parentElement.remove();
-  }
-
-  container.appendChild(line);
-  input.focus();
-}
-
-function handleStoryCommand(e) {
-  if (e.key === 'Enter') {
-    const input = e.target;
-    const cmd = input.value.trim();
-    if (!cmd) return;
-
-    const container = document.getElementById('storyTerminal');
-    const storyArea = document.getElementById('storyContent');
-
-    processStoryCommand(cmd);
-
-    input.value = '';
-    input.focus();
-    container.scrollTop = container.scrollHeight;
-  }
-}
-
-function processStoryCommand(cmd) {
-  const container = document.getElementById('storyTerminal');
-  const storyArea = document.getElementById('storyContent');
-
-  if (cmd === '开始阅读') {
-    isReadingMirrorStory = true;
-    currentMirrorChapter = 0;
-    showMirrorChapterInStory(storyArea, currentMirrorChapter);
-  } else if (cmd === '下一章') {
-    if (!isReadingMirrorStory) {
-      addStoryOutput(container, '<span class="pink">请先输入「开始阅读」开启镜界故事</span>');
-    } else if (currentMirrorChapter < mirrorChapters.length - 1) {
-      currentMirrorChapter++;
-      showMirrorChapterInStory(storyArea, currentMirrorChapter);
-    } else {
-      addStoryOutput(container, '<span class="highlight">已到达故事末尾</span>');
-      addStoryOutput(container, '<span class="dim">输入「查看角色」查看主要角色表</span>');
-    }
-  } else if (cmd === '查看角色') {
-    storyArea.innerHTML = '';
-    const title = document.createElement('div');
-    title.className = 'story-chapter-title';
-    title.innerHTML = '<span class="ch-num">[角色]</span>镜界·人魔之战 - 主要角色表';
-    storyArea.appendChild(title);
-
-    const textEl = document.createElement('div');
-    textEl.className = 'story-text';
-    textEl.innerHTML = mirrorCharacterTable.replace(/\|/g, '<span style="color:var(--text-dim)">|</span>');
-    storyArea.appendChild(textEl);
-  } else {
-    addStoryOutput(container, `<span class="pink">未知命令: ${cmd}</span>`);
-    addStoryOutput(container, '<span class="dim">输入「开始阅读」开启镜界故事</span>');
-  }
-}
-
-function addStoryOutput(container, html) {
-  const output = document.createElement('div');
-  output.className = 'cmd-output';
-  output.innerHTML = html;
-  const inputLine = container.querySelector('.cmd-input');
-  if (inputLine) {
-    container.insertBefore(output, inputLine.parentElement);
-  } else {
-    container.appendChild(output);
-  }
-}
-
-function showMirrorChapterInStory(storyArea, chapterIndex) {
-  const chapter = mirrorChapters[chapterIndex];
-  if (!chapter) return;
-
-  storyArea.innerHTML = '';
-
-  const title = document.createElement('div');
-  title.className = 'story-chapter-title';
-  title.innerHTML = '<span class="ch-num">[' + String(chapterIndex).padStart(2,'0') + ']</span>镜界·人魔之战 - ' + chapter.title;
-  storyArea.appendChild(title);
-
-  const textEl = document.createElement('div');
-  textEl.className = 'story-text';
-  storyArea.appendChild(textEl);
-
-  let charIdx = 0;
-  const fullText = chapter.text;
-
-  if (typewriterTimer) {
-    clearInterval(typewriterTimer);
-    typewriterTimer = null;
-  }
-
-  typewriterTimer = setInterval(() => {
-    if (charIdx < fullText.length) {
-      const chunk = fullText.substring(charIdx, charIdx + 1);
-      textEl.textContent += chunk;
-      charIdx++;
-      storyArea.scrollTop = storyArea.scrollHeight;
-    } else {
-      clearInterval(typewriterTimer);
-      typewriterTimer = null;
-    }
-  }, 30);
-
-  textEl.addEventListener('click', () => {
-    if (typewriterTimer) {
-      clearInterval(typewriterTimer);
-      typewriterTimer = null;
-      textEl.textContent = fullText;
-    }
-  });
 }
 
 function switchChapter(idx) {
@@ -1199,33 +812,6 @@ function switchChapter(idx) {
     btn.classList.toggle('active', i === idx);
   });
   renderChapter(idx);
-
-  const container = document.getElementById('storyTerminal');
-  const existingInput = container.querySelector('.cmd-input');
-  const existingCursor = container.querySelector('.typing-cursor');
-
-  if (idx === 4) {
-    if (existingCursor && existingCursor.parentElement) {
-      const cursorEl = existingCursor.parentElement;
-      if (cursorEl.classList && cursorEl.classList.contains('cmd-output')) {
-        cursorEl.remove();
-      }
-    }
-    if (!existingInput) {
-      addStoryInput(container);
-    }
-  } else {
-    if (existingInput) {
-      existingInput.parentElement.remove();
-    }
-    if (!container.querySelector('.typing-cursor')) {
-      const cursor = document.createElement('div');
-      cursor.className = 'cmd-output dim';
-      cursor.style.marginTop = '1rem';
-      cursor.innerHTML = '  [EOF] - starry_miu@nft-terminal:~$ <span class="typing-cursor"></span>';
-      container.appendChild(cursor);
-    }
-  }
 }
 
 function renderChapter(idx) {
@@ -1267,106 +853,153 @@ function renderChapter(idx) {
   });
 }
 
+/* ========== VOTE PAGE ========== */
 let currentVotePage = 1;
 
 function renderVotePage(page) {
   currentVotePage = page;
   const container = document.getElementById('voteGrid');
   container.innerHTML = '';
+  
+  const startIdx = (page - 1) * PER_PAGE;
+  const endIdx = Math.min(startIdx + PER_PAGE, availableNFTs.length);
+  const pageNFTs = availableNFTs.slice(startIdx, endIdx);
+  
+  const firstId = pageNFTs.length > 0 ? pageNFTs[0] : '-';
+  const lastId = pageNFTs.length > 0 ? pageNFTs[pageNFTs.length - 1] : '-';
 
-  const available = getAvailableNFTs();
-  const perPage = 12;
-  const startIndex = (page - 1) * perPage;
-  const endIndex = Math.min(startIndex + perPage, available.length);
+  const info = document.createElement('div');
+  info.className = 'cmd-output dim';
+  info.textContent = ` > NFTs #${firstId} - #${lastId} (${page}/${TOTAL_PAGES})`;
+  container.appendChild(info);
 
   const grid = document.createElement('div');
   grid.className = 'nft-grid';
-  grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
-
-  for (let i = startIndex; i < endIndex; i++) {
-    const id = available[i];
+  
+  for (const nftId of pageNFTs) {
     const wrap = document.createElement('div');
     const card = document.createElement('div');
     card.className = 'nft-card';
-    const img = createNFTImage(id);
+    
+    const img = createNFTImage(nftId);
     card.appendChild(img);
-    const info = document.createElement('div');
-    info.className = 'nft-id';
-    info.innerHTML = `#${String(id).padStart(4,'0')}`;
+    
+    const idLabel = document.createElement('div');
+    idLabel.className = 'nft-id';
+    idLabel.textContent = `#${String(nftId).padStart(4,'0')}`;
+    const btn = document.createElement('button');
+    btn.className = 'vote-btn';
+    btn.textContent = `投票 (${votes[nftId] || 0})`;
+    btn.addEventListener('click', async () => {
+      const success = await addVote(nftId);
+      if (success) {
+        btn.textContent = `投票 (${votes[nftId]})`;
+        btn.style.borderColor = 'var(--accent-magenta)';
+        btn.style.color = 'var(--accent-magenta)';
+        setTimeout(() => { btn.style.borderColor = ''; btn.style.color = ''; }, 600);
+      } else {
+        btn.style.borderColor = '#ff3333';
+        btn.style.color = '#ff3333';
+        setTimeout(() => { btn.style.borderColor = ''; btn.style.color = ''; }, 600);
+      }
+    });
     wrap.appendChild(card);
-    wrap.appendChild(info);
+    wrap.appendChild(idLabel);
+    wrap.appendChild(btn);
     grid.appendChild(wrap);
   }
-
   container.appendChild(grid);
-  renderVotePagination();
+
+  document.getElementById('voteCmdPage').textContent = page;
+  renderPagination();
 }
 
-function renderVotePagination() {
+function renderPagination() {
   const container = document.getElementById('votePagination');
   container.innerHTML = '';
 
-  const available = getAvailableNFTs();
-  const totalPages = Math.ceil(available.length / 12);
-
   const prevBtn = document.createElement('button');
   prevBtn.className = 'page-btn nav-arrow';
-  prevBtn.textContent = '← 上一页';
+  prevBtn.textContent = '上一页';
   prevBtn.disabled = currentVotePage === 1;
-  prevBtn.addEventListener('click', () => {
-    if (currentVotePage > 1) {
-      renderVotePage(currentVotePage - 1);
-    }
-  });
+  prevBtn.addEventListener('click', () => { if (currentVotePage > 1) renderVotePage(currentVotePage - 1); });
   container.appendChild(prevBtn);
 
-  const pageInfo = document.createElement('span');
-  pageInfo.className = 'page-info';
-  pageInfo.textContent = `第 ${currentVotePage} / ${totalPages} 页`;
-  container.appendChild(pageInfo);
+  const pages = [];
+  pages.push(1);
+  if (currentVotePage !== 1 && currentVotePage !== TOTAL_PAGES) {
+    pages.push(currentVotePage);
+  }
+  if (TOTAL_PAGES > 1) pages.push(TOTAL_PAGES);
+
+  for (let i = 0; i < pages.length; i++) {
+    const p = pages[i];
+    if (i > 0 && p - pages[i - 1] > 1) {
+      const dots = document.createElement('span');
+      dots.className = 'page-info';
+      dots.textContent = '...';
+      container.appendChild(dots);
+    }
+    addPageBtn(container, p);
+  }
 
   const nextBtn = document.createElement('button');
   nextBtn.className = 'page-btn nav-arrow';
-  nextBtn.textContent = '下一页 →';
-  nextBtn.disabled = currentVotePage === totalPages;
-  nextBtn.addEventListener('click', () => {
-    if (currentVotePage < totalPages) {
-      renderVotePage(currentVotePage + 1);
-    }
-  });
+  nextBtn.textContent = '下一页';
+  nextBtn.disabled = currentVotePage === TOTAL_PAGES;
+  nextBtn.addEventListener('click', () => { if (currentVotePage < TOTAL_PAGES) renderVotePage(currentVotePage + 1); });
   container.appendChild(nextBtn);
 }
 
-function initAbout() {
-  const container = document.getElementById('aboutContent');
-  container.innerHTML = '';
-
-  const aboutText = `
-<div class="about-line">
-  <span class="label">项目名称:</span> <span class="value">StarryMiu NFT Collection</span>
-</div>
-<div class="about-line">
-  <span class="label">总数量:</span> <span class="value">1132 NFTs</span>
-</div>
-<div class="about-line">
-  <span class="label">区块链:</span> <span class="value">Base</span>
-</div>
-<div class="about-line">
-  <span class="label">合约地址:</span> <span class="value">0x88d1e3b2913f4c44436d2b21b154c90157b5d721</span>
-</div>
-<div class="about-line">
-  <span class="label">创作者:</span> <span class="value">@_StarryMiu</span>
-</div>
-<div class="about-line">
-  <span class="label">描述:</span> <span class="value">一个由个人创建的NFT合集，记录了创作者对NFT的热爱与情感</span>
-</div>
-  `;
-  container.innerHTML = aboutText;
+function addPageBtn(container, p) {
+  const btn = document.createElement('button');
+  btn.className = 'page-btn' + (p === currentVotePage ? ' active' : '');
+  btn.textContent = p;
+  btn.addEventListener('click', () => renderVotePage(p));
+  container.appendChild(btn);
 }
 
-loadCharacters();
-loadVotes();
-initHome();
-initExhibition();
-renderVotePage(1);
-initAbout();
+/* ========== ABOUT PAGE ========== */
+function initAbout() {
+  const container = document.getElementById('aboutContent');
+  container.innerHTML = `
+<div class="ascii-art">   /&#92;_/&#92;<br/>  ( o.o )<br/>   &gt; ^ &lt;     StarryMiu<br/>  /|   |&#92;<br/>  (_|   |_)</div>
+<div class="cmd-output"><span class="highlight">> cat creator_info.txt</span></div>
+<div class="about-line">  <span class="label">项目 :</span> <span class="value">StarryMiu NFT</span></div>
+<div class="about-line">  <span class="label">创作者 :</span> <a href="https://x.com/_StarryMiu" target="_blank" rel="noopener" style="color:var(--accent-magenta);text-decoration:none">StarryMiu</a></div>
+<div class="about-line">  <span class="label">X :</span> <a href="https://x.com/_StarryMiu" target="_blank" rel="noopener" style="color:var(--accent-magenta);text-decoration:none">@_StarryMiu</a></div>
+<div class="about-line">  <span class="label">数量 :</span> <span class="value">${TOTAL_NFT} NFTs</span></div>
+<div class="about-line">  <span class="label">链 :</span> <span class="value">Base</span></div>
+<div class="about-line">  <span class="label">合约 :</span> <span class="value" style="font-size:.7rem">0x88d1...5d721</span></div>
+<div class="cmd-output"><span class="highlight">> cat mission.txt</span></div>
+<div class="cmd-output" style="line-height:1.9">  StarryMiu 是我独自创建并构建的一套私人 NFT 藏品。</div>
+<div class="cmd-output"><span class="highlight">> cat links.txt</span></div>
+<div class="about-line">  <span class="label">[01]</span> <a href="https://t.me/StarryMiuCuteKitten" target="_blank" rel="noopener" style="color:var(--accent-cyan);text-decoration:none">Telegram 频道</a></div>
+<div class="about-line">  <span class="label">[02]</span> <a href="https://t.me/StarryMiu/1" target="_blank" rel="noopener" style="color:var(--accent-cyan);text-decoration:none">Telegram 群组</a></div>
+<div class="about-line">  <span class="label">[03]</span> <a href="https://cutekitten.hair/" target="_blank" rel="noopener" style="color:var(--accent-cyan);text-decoration:none">作者作品</a></div>
+<div class="about-line">  <span class="label">[04]</span> <a href="https://opensea.io/collection/starrymiu" target="_blank" rel="noopener" style="color:var(--accent-cyan);text-decoration:none">OpenSea</a></div>
+<div class="cmd-output dim">  [EOF] - starry_miu@nft-terminal:~$ <span class="typing-cursor"></span></div>
+  `;
+}
+
+/* ========== INIT ========== */
+async function initApp() {
+  await loadVotes();
+  initHome();
+  initExhibition();
+  renderVotePage(1);
+  initAbout();
+}
+
+initApp();
+
+// Auto-focus on home terminal input when clicking anywhere on home page
+document.getElementById('home').addEventListener('click', (e) => {
+  if (e.target.tagName !== 'INPUT') {
+    const inputs = homeTerminal.querySelectorAll('.cmd-input:not([disabled])');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }
+});
+</script>
+</body>
+</html>
